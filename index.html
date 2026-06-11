@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>knowing the night</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --void: #050810;
+    --deep: #0a0f1e;
+    --midnight: #0f1628;
+    --silver: #c8d4e8;
+    --starwhite: #f0f4ff;
+    --amber: #e8c87a;
+    --amber-dim: #a8893a;
+    --poem-text: #dde6f5;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--void);
+    overflow: hidden;
+    font-family: 'EB Garamond', Georgia, serif;
+    color: var(--silver);
+    cursor: default;
+    user-select: none;
+  }
+
+  /* ── CANVAS LAYER ── */
+  #sky {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+  }
+
+  /* ── AURORA ── */
+  #aurora {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 38vh;
+    background: linear-gradient(
+      to top,
+      rgba(10, 20, 50, 0.0),
+      rgba(15, 40, 80, 0.12) 30%,
+      rgba(10, 30, 60, 0.06) 70%,
+      transparent
+    );
+    z-index: 1;
+    pointer-events: none;
+    animation: aurora-breathe 12s ease-in-out infinite alternate;
+  }
+
+  @keyframes aurora-breathe {
+    0%   { opacity: 0.4; transform: scaleY(1); }
+    50%  { opacity: 0.7; transform: scaleY(1.08); }
+    100% { opacity: 0.45; transform: scaleY(0.96); }
+  }
+
+  /* ── STARS (clickable) ── */
+  .star-point {
+    position: fixed;
+    border-radius: 50%;
+    background: var(--starwhite);
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    z-index: 10;
+    transition: box-shadow 0.4s ease;
+    animation: heartbeat var(--hb, 3s) ease-in-out infinite;
+  }
+
+  .star-point::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+  }
+
+  .star-point.active {
+    background: var(--amber);
+    box-shadow: 0 0 8px 3px rgba(232,200,122,0.5), 0 0 24px 8px rgba(232,200,122,0.15);
+    animation: none;
+  }
+
+  .star-point.pulse-hint {
+    animation: hint-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes heartbeat {
+    0%, 100% { box-shadow: 0 0 2px 1px rgba(240,244,255,0.3); opacity: 0.8; }
+    50%       { box-shadow: 0 0 6px 2px rgba(240,244,255,0.5); opacity: 1; }
+  }
+
+  @keyframes hint-pulse {
+    0%, 100% { box-shadow: 0 0 4px 2px rgba(232,200,122,0.2), 0 0 12px 4px rgba(232,200,122,0.08); transform: translate(-50%,-50%) scale(1); }
+    50%       { box-shadow: 0 0 10px 4px rgba(232,200,122,0.5), 0 0 28px 10px rgba(232,200,122,0.18); transform: translate(-50%,-50%) scale(1.18); }
+  }
+
+  /* ── STANZA PANEL ── */
+  #stanza-panel {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .stanza-card {
+    max-width: min(580px, 88vw);
+    text-align: center;
+    padding: 0 1.5rem;
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+    pointer-events: none;
+  }
+
+  .stanza-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: none;
+  }
+
+  .stanza-card p {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: clamp(1.05rem, 2.4vw, 1.35rem);
+    line-height: 1.95;
+    color: var(--poem-text);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    white-space: pre-line;
+  }
+
+  .stanza-card p .char {
+    display: inline;
+    opacity: 0;
+    transition: opacity 0.04s ease;
+  }
+
+  /* ── FINAL STANZA ── */
+  .stanza-card.final p {
+    font-size: clamp(1.1rem, 2.8vw, 1.5rem);
+    color: var(--amber);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── INTRO OVERLAY ── */
+  #intro {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.8rem;
+    background: rgba(5,8,16,0.96);
+    transition: opacity 1.2s ease;
+  }
+
+  #intro.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  #intro h1 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(1.3rem, 4vw, 2rem);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--silver);
+    letter-spacing: 0.12em;
+    opacity: 0.7;
+  }
+
+  #intro p {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: clamp(0.85rem, 1.8vw, 1rem);
+    color: rgba(200, 212, 232, 0.4);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  #begin-btn {
+    background: none;
+    border: 1px solid rgba(200,212,232,0.2);
+    color: rgba(200,212,232,0.55);
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 1rem;
+    font-style: italic;
+    letter-spacing: 0.2em;
+    padding: 0.65rem 2.2rem;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    border-radius: 1px;
+  }
+
+  #begin-btn:hover {
+    color: rgba(232,200,122,0.8);
+    border-color: rgba(232,200,122,0.35);
+  }
+
+  /* ── COUNTER / HINT ── */
+  #counter {
+    position: fixed;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.22em;
+    color: rgba(200,212,232,0.25);
+    text-transform: uppercase;
+    transition: opacity 0.6s;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  /* ── DISMISS HINT ── */
+  #dismiss-hint {
+    position: fixed;
+    bottom: 2.5rem;
+    right: 2.5rem;
+    z-index: 30;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    color: rgba(200,212,232,0.18);
+    text-transform: uppercase;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    pointer-events: none;
+    transition: opacity 0.6s;
+    opacity: 0;
+  }
+
+  #dismiss-hint.visible {
+    opacity: 1;
+    pointer-events: all;
+    cursor: pointer;
+  }
+
+  /* ── SHOOTING STAR ── */
+  .shoot {
+    position: fixed;
+    width: 2px;
+    height: 2px;
+    background: white;
+    border-radius: 50%;
+    z-index: 2;
+    pointer-events: none;
+    animation: shoot-anim 0.8s ease-out forwards;
+    transform-origin: left center;
+  }
+
+  @keyframes shoot-anim {
+    0%   { opacity: 1; transform: scaleX(1); }
+    60%  { opacity: 0.6; transform: scaleX(60); }
+    100% { opacity: 0; transform: scaleX(100) translateX(40px); }
+  }
+
+  /* ── END BLOOM ── */
+  #end-bloom {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(ellipse at 50% 50%, rgba(232,200,122,0.07) 0%, transparent 70%);
+    transition: opacity 3s ease;
+  }
+
+  #end-bloom.lit { opacity: 1; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .star-point, .stanza-card, #aurora, .shoot { animation: none; transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="sky"></canvas>
+<div id="aurora"></div>
+<div id="end-bloom"></div>
+
+<div id="stanza-panel">
+  <div class="stanza-card" id="active-card"></div>
+</div>
+
+<div id="counter">touch a star</div>
+<div id="dismiss-hint" id="dismiss-hint">click anywhere to continue ·</div>
+
+<div id="intro">
+  <h1>knowing the night</h1>
+  <p>a poem in stars</p>
+  <button id="begin-btn">enter the sky</button>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+//  POEM DATA
+// ─────────────────────────────────────────────
+const stanzas = [
+  {
+    lines: `You speak and even time leans in;\nthe world forgets its pace.\nIn this quiet stillness\neverything within me finally finds its place.`,
+    size: 5
+  },
+  {
+    lines: `And when the night shows its starry skies,\nyour name becomes the breaker of silence\nbetween the stars.\nA gentle warmth I can't touch,\nyet somehow know is yours.`,
+    size: 4.5
+  },
+  {
+    lines: `I live where your light still falls,\nlike a tide that loves the moon too much\nto ever learn relief.`,
+    size: 4
+  },
+  {
+    lines: `For every step toward dawn reveals\na piece of what I want,\nyet every hour spent beneath this sky\ndraws me farther from myself too.`,
+    size: 4
+  },
+  {
+    lines: `The seasons come at my door,\nasking me to pick a path.\nBut one path leaves your echo behind,\nand so I stand near a flame\nnot willing to depart.`,
+    size: 4.5
+  },
+  {
+    lines: `knowing the night will never choose me.\n\nwhich absence breaks the heart`,
+    size: 5,
+    final: true
+  }
+];
+
+// ─────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────
+let revealed = 0;
+let animating = false;
+let started = false;
+const total = stanzas.length;
+
+// ─────────────────────────────────────────────
+//  CANVAS — drifting starfield
+// ─────────────────────────────────────────────
+const canvas = document.getElementById('sky');
+const ctx = canvas.getContext('2d');
+
+let W, H;
+let bgStars = [];
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+
+function makeBgStars(n) {
+  bgStars = [];
+  for (let i = 0; i < n; i++) {
+    bgStars.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 0.9 + 0.15,
+      spd: Math.random() * 0.012 + 0.003,
+      drift: (Math.random() - 0.5) * 0.008,
+      alpha: Math.random() * 0.5 + 0.3,
+      flick: Math.random() * Math.PI * 2
+    });
+  }
+}
+
+function drawBg() {
+  ctx.fillStyle = '#050810';
+  ctx.fillRect(0, 0, W, H);
+
+  // subtle galaxy band
+  const grd = ctx.createLinearGradient(W*0.1, H*0.1, W*0.9, H*0.85);
+  grd.addColorStop(0, 'rgba(12,18,45,0)');
+  grd.addColorStop(0.5, 'rgba(14,22,55,0.18)');
+  grd.addColorStop(1, 'rgba(12,18,45,0)');
+  ctx.fillStyle = grd;
+  ctx.fillRect(0, 0, W, H);
+
+  for (let s of bgStars) {
+    s.flick += 0.015;
+    const a = s.alpha * (0.75 + 0.25 * Math.sin(s.flick));
+    ctx.globalAlpha = a;
+    ctx.fillStyle = '#f0f4ff';
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fill();
+
+    s.y -= s.spd;
+    s.x += s.drift;
+    if (s.y < -2) { s.y = H + 2; s.x = Math.random() * W; }
+    if (s.x < 0) s.x = W;
+    if (s.x > W) s.x = 0;
+  }
+  ctx.globalAlpha = 1;
+}
+
+let raf;
+function loop() {
+  drawBg();
+  raf = requestAnimationFrame(loop);
+}
+
+// ─────────────────────────────────────────────
+//  CLICKABLE STARS — positions
+// ─────────────────────────────────────────────
+// Distributed across sky quadrants for a natural constellation feel
+const starPositions = [
+  { x: 0.18, y: 0.22 },
+  { x: 0.72, y: 0.16 },
+  { x: 0.44, y: 0.38 },
+  { x: 0.82, y: 0.52 },
+  { x: 0.25, y: 0.62 },
+  { x: 0.60, y: 0.72 }   // final — center-ish lower
+];
+
+const starEls = [];
+
+function buildStars() {
+  starPositions.forEach((pos, i) => {
+    const el = document.createElement('div');
+    el.className = 'star-point' + (i === 0 ? ' pulse-hint' : '');
+    el.style.setProperty('--hb', `${2.8 + i * 0.4}s`);
+    el.style.left = `${pos.x * 100}%`;
+    el.style.top = `${pos.y * 100}%`;
+    const sz = i === total - 1 ? 7 : stanzas[i].size;
+    el.style.width = el.style.height = `${sz}px`;
+    el.dataset.index = i;
+    el.addEventListener('click', onStarClick);
+    document.body.appendChild(el);
+    starEls.push(el);
+  });
+}
+
+// ─────────────────────────────────────────────
+//  AUDIO — Web Audio ambient
+// ─────────────────────────────────────────────
+let audioCtx, masterGain, noiseNode, toneNodes = [];
+
+function startAudio() {
+  if (audioCtx) return;
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  masterGain = audioCtx.createGain();
+  masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
+  masterGain.gain.linearRampToValueAtTime(0.22, audioCtx.currentTime + 4);
+  masterGain.connect(audioCtx.destination);
+
+  // Wind-like noise
+  const bufferSize = audioCtx.sampleRate * 4;
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+  noiseNode = audioCtx.createBufferSource();
+  noiseNode.buffer = buffer;
+  noiseNode.loop = true;
+  const noiseFilter = audioCtx.createBiquadFilter();
+  noiseFilter.type = 'bandpass';
+  noiseFilter.frequency.value = 320;
+  noiseFilter.Q.value = 0.5;
+  const noiseGain = audioCtx.createGain();
+  noiseGain.gain.value = 0.035;
+  noiseNode.connect(noiseFilter);
+  noiseFilter.connect(noiseGain);
+  noiseGain.connect(masterGain);
+  noiseNode.start();
+
+  // Soft drone tones (Cm-ish: C2, G2, Eb3)
+  [[65.4, 0.04], [98, 0.025], [155.6, 0.015], [207.7, 0.01]].forEach(([freq, gain]) => {
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    g.gain.value = gain;
+    // slow tremolo
+    const lfo = audioCtx.createOscillator();
+    const lfoGain = audioCtx.createGain();
+    lfo.frequency.value = 0.07 + Math.random() * 0.04;
+    lfoGain.gain.value = gain * 0.3;
+    lfo.connect(lfoGain);
+    lfoGain.connect(g.gain);
+    lfo.start();
+    osc.connect(g);
+    g.connect(masterGain);
+    osc.start();
+    toneNodes.push(osc);
+  });
+}
+
+function chimeSound() {
+  if (!audioCtx) return;
+  const notes = [523.25, 659.25, 783.99, 1046.5];
+  const note = notes[Math.floor(Math.random() * notes.length)];
+  const osc = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = note;
+  g.gain.setValueAtTime(0.12, audioCtx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.8);
+  osc.connect(g);
+  g.connect(masterGain);
+  osc.start();
+  osc.stop(audioCtx.currentTime + 1.8);
+}
+
+function finalChime() {
+  if (!audioCtx) return;
+  [261.63, 329.63, 392, 523.25].forEach((freq, i) => {
+    setTimeout(() => {
+      const osc = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      g.gain.setValueAtTime(0.09, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 3.5);
+      osc.connect(g);
+      g.connect(masterGain);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 3.5);
+    }, i * 320);
+  });
+}
+
+// ─────────────────────────────────────────────
+//  SHOOTING STAR
+// ─────────────────────────────────────────────
+function shootingStar() {
+  const el = document.createElement('div');
+  el.className = 'shoot';
+  const x = Math.random() * W * 0.6 + W * 0.1;
+  const y = Math.random() * H * 0.4 + H * 0.05;
+  const angle = 15 + Math.random() * 20;
+  el.style.left = x + 'px';
+  el.style.top = y + 'px';
+  el.style.transform = `rotate(${angle}deg)`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 900);
+}
+
+setInterval(() => {
+  if (started && Math.random() < 0.35) shootingStar();
+}, 6000);
+
+// ─────────────────────────────────────────────
+//  TYPEWRITER
+// ─────────────────────────────────────────────
+function typewrite(el, text, done) {
+  el.innerHTML = '';
+  const p = document.createElement('p');
+  el.appendChild(p);
+
+  const chars = text.split('');
+  chars.forEach(ch => {
+    const span = document.createElement('span');
+    span.className = 'char';
+    span.textContent = ch === '\n' ? '\n' : ch;
+    if (ch === '\n') span.style.display = 'block';
+    p.appendChild(span);
+  });
+
+  const spans = p.querySelectorAll('.char');
+  let i = 0;
+  const speed = Math.max(18, 900 / spans.length);
+
+  function tick() {
+    if (i < spans.length) {
+      spans[i].style.opacity = '1';
+      i++;
+      setTimeout(tick, speed);
+    } else {
+      if (done) done();
+    }
+  }
+  tick();
+}
+
+// ─────────────────────────────────────────────
+//  STANZA REVEAL
+// ─────────────────────────────────────────────
+const card = document.getElementById('active-card');
+const counter = document.getElementById('counter');
+const dismissHint = document.getElementById('dismiss-hint');
+
+function showStanza(index) {
+  if (animating) return;
+  animating = true;
+
+  const s = stanzas[index];
+  if (s.final) {
+    card.classList.add('final');
+  } else {
+    card.classList.remove('final');
+  }
+
+  // fade out existing
+  card.classList.remove('visible');
+  setTimeout(() => {
+    typewrite(card, s.lines, () => {
+      animating = false;
+      if (index < total - 1) {
+        counter.textContent = `✦ ${index + 1} of ${total - 1} · find the next star`;
+        dismissHint.classList.add('visible');
+      } else {
+        counter.style.opacity = '0';
+        dismissHint.classList.remove('visible');
+      }
+    });
+    card.classList.add('visible');
+  }, 400);
+
+  // counter
+  if (index < total - 1) {
+    counter.textContent = '·';
+  }
+}
+
+// ─────────────────────────────────────────────
+//  STAR CLICK
+// ─────────────────────────────────────────────
+function onStarClick(e) {
+  const i = parseInt(e.currentTarget.dataset.index);
+  if (i !== revealed) return; // must click in order
+
+  chimeSound();
+
+  e.currentTarget.classList.remove('pulse-hint');
+  e.currentTarget.classList.add('active');
+  e.currentTarget.removeEventListener('click', onStarClick);
+
+  // hint next star
+  if (i + 1 < total) {
+    setTimeout(() => {
+      starEls[i + 1].classList.add('pulse-hint');
+    }, 1200);
+  }
+
+  revealed++;
+  showStanza(i);
+
+  if (i === total - 1) {
+    // final poem complete
+    finalChime();
+    document.getElementById('end-bloom').classList.add('lit');
+    setTimeout(shootingStar, 1000);
+    setTimeout(shootingStar, 2200);
+    setTimeout(shootingStar, 3800);
+  }
+}
+
+// click-away to dismiss stanza
+document.addEventListener('click', (e) => {
+  if (e.target.closest('.star-point') || e.target.closest('#intro') || e.target.closest('#begin-btn')) return;
+  if (!animating && card.classList.contains('visible') && revealed < total) {
+    card.classList.remove('visible');
+    counter.textContent = 'find the next star  ✦';
+    dismissHint.classList.remove('visible');
+  }
+});
+
+// ─────────────────────────────────────────────
+//  INTRO
+// ─────────────────────────────────────────────
+document.getElementById('begin-btn').addEventListener('click', () => {
+  startAudio();
+  started = true;
+  document.getElementById('intro').classList.add('hidden');
+  setTimeout(() => {
+    document.getElementById('intro').remove();
+    counter.textContent = 'touch a star  ✦';
+    starEls[0].classList.add('pulse-hint');
+  }, 1300);
+  shootingStar();
+});
+
+// ─────────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────────
+window.addEventListener('resize', () => {
+  resize();
+  makeBgStars(Math.floor((W * H) / 4000));
+});
+
+resize();
+makeBgStars(Math.floor((W * H) / 4000));
+buildStars();
+loop();
+</script>
+</body>
+</html>
