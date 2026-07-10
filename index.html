@@ -19,6 +19,9 @@
     --amber: #e8c87a;
     --amber-dim: #a8893a;
     --poem-text: #dde6f5;
+    --rose: #e0748c;
+    --rose-dim: #a84f63;
+    --redstar: #ff4d4d;
   }
 
   html, body {
@@ -279,6 +282,127 @@
 
   #end-bloom.lit { opacity: 1; }
 
+  /* ── RED STAR (act transition) ── */
+  .star-point.red-star { background: var(--redstar); }
+
+  .star-point.red-star.pulse-hint {
+    animation: red-hint-pulse 1.8s ease-in-out infinite;
+  }
+
+  @keyframes red-hint-pulse {
+    0%, 100% { box-shadow: 0 0 6px 3px rgba(255,77,77,0.35), 0 0 16px 6px rgba(255,77,77,0.12); transform: translate(-50%,-50%) scale(1); }
+    50%       { box-shadow: 0 0 14px 5px rgba(255,77,77,0.6), 0 0 34px 12px rgba(255,77,77,0.25); transform: translate(-50%,-50%) scale(1.22); }
+  }
+
+  .star-point.red-star.active {
+    background: #ff2f2f;
+    box-shadow: 0 0 10px 4px rgba(255,60,60,0.6), 0 0 30px 10px rgba(255,60,60,0.25);
+    animation: none;
+  }
+
+  /* ── ROSE CONSTELLATION STARS ── */
+  .star-point.rose-star { background: var(--rose); }
+
+  /* ── WARP / HYPERSPACE FLASH ── */
+  #warp-flash {
+    position: fixed;
+    inset: 0;
+    z-index: 15;
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  body.warping #warp-flash {
+    animation: warp-flash-anim 2.2s ease-in-out forwards;
+  }
+
+  @keyframes warp-flash-anim {
+    0%   { opacity: 0; background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0) 0%, transparent 70%); }
+    45%  { opacity: 0.4; background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.55) 0%, rgba(200,70,80,0.18) 40%, transparent 78%); }
+    100% { opacity: 0; background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0) 0%, transparent 70%); }
+  }
+
+  body.warping #sky { filter: brightness(1.15); }
+
+  /* ── CONSTELLATION LINE ART (rose) ── */
+  #constellation-lines {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9;
+    pointer-events: none;
+  }
+
+  #rose-lines {
+    opacity: 0;
+    transition: opacity 2.2s ease;
+  }
+
+  #rose-lines.visible { opacity: 1; }
+
+  #rose-lines path {
+    fill: none;
+    vector-effect: non-scaling-stroke;
+  }
+
+  #rose-lines path.curve {
+    stroke: rgba(224,116,140,0.55);
+    stroke-width: 1.1;
+  }
+
+  #rose-lines path.curve.inner {
+    stroke: rgba(232,150,168,0.5);
+    stroke-width: 0.9;
+  }
+
+  #rose-lines path.stem {
+    stroke: rgba(200,110,130,0.6);
+    stroke-width: 1.2;
+  }
+
+  #rose-lines path.leaf {
+    stroke: rgba(120,180,120,0.4);
+    fill: rgba(120,180,120,0.05);
+    stroke-width: 0.9;
+  }
+
+  /* ── ROSE DUST (scattered detail stars along the curve) ── */
+  .rose-dust {
+    position: fixed;
+    border-radius: 50%;
+    background: rgba(228,140,158,0.75);
+    box-shadow: 0 0 4px 1px rgba(224,116,140,0.4);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 8;
+    opacity: 0;
+    transition: opacity 2s ease;
+  }
+
+  .rose-dust.visible { opacity: 1; }
+
+  /* ── ROSE CAPTION ── */
+  #rose-caption {
+    position: fixed;
+    top: 12%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: clamp(0.85rem, 2vw, 1.05rem);
+    letter-spacing: 0.1em;
+    color: rgba(224,116,140,0.6);
+    text-align: center;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.6s ease;
+  }
+
+  #rose-caption.visible { opacity: 1; }
+
   @media (prefers-reduced-motion: reduce) {
     .star-point, .stanza-card, #aurora, .shoot { animation: none; transition: none; }
   }
@@ -289,6 +413,19 @@
 <canvas id="sky"></canvas>
 <div id="aurora"></div>
 <div id="end-bloom"></div>
+<div id="warp-flash"></div>
+
+<svg id="constellation-lines" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+  <g id="rose-lines">
+    <path id="rose-outer" class="curve" d="" />
+    <path id="rose-inner" class="curve inner" d="" />
+    <path class="stem" d="M50,47 Q47,64 50,76 Q52,84 50,92" />
+    <path class="leaf" d="M50,63 Q39,60 32,69 Q41,74 50,67 Z" />
+    <path class="leaf" d="M50,70 Q61,67 68,76 Q59,81 50,74 Z" />
+  </g>
+</svg>
+
+<div id="rose-caption">a second constellation begins to bloom</div>
 
 <div id="stanza-panel">
   <div class="stanza-card" id="active-card"></div>
@@ -307,7 +444,7 @@
 // ─────────────────────────────────────────────
 //  POEM DATA
 // ─────────────────────────────────────────────
-const stanzas = [
+let stanzas = [
   {
     lines: `You speak and even time leans in;\nthe world forgets its pace.\nIn this quiet stillness\neverything within me finally finds its place.`,
     size: 5
@@ -335,13 +472,52 @@ const stanzas = [
   }
 ];
 
+const stanzas2 = [
+  {
+    lines: `Some people wait for sunsets;\nI find myself waiting for your words.\nA few minutes become hours,\nand somehow still feels too short.`,
+    size: 6
+  },
+  {
+    lines: `That's why I'd welcome any hour that brings you—\neven the ones the world is asleep for,\nwhen the sky is still deciding\nwhat it wants to be.`,
+    size: 5.5
+  },
+  {
+    lines: `There is something about you—\nthe way your eyes hold light,\nthe way you smile,\nthat makes leaving a conversation hanging\nfeel a little like\npausing your favorite story before the final page.`,
+    size: 5
+  },
+  {
+    lines: `And maybe that's all this is:\nthe quiet wish to know every version of you,\nthe stories you tell,\nand the ones you keep for yourself.`,
+    size: 5.5
+  },
+  {
+    lines: `Every person is a universe.\n\nAll I want is to learn to live in yours.`,
+    size: 7,
+    final: true
+  }
+];
+
+// rose-shaped constellation: five-petal bloom (generated curve) with a stem root.
+// Star positions sit on four of the five petal tips plus the stem's root.
+const ROSE_CENTER = { x: 0.50, y: 0.30 };
+const ROSE_OUTER_R = 0.24;
+const ROSE_Y_SQUASH = 0.85;
+
+const rosePositions = [
+  { x: 0.720, y: 0.300 },  // t = 0°   — east petal tip
+  { x: 0.568, y: 0.122 },  // t = 288° — upper-right petal tip
+  { x: 0.322, y: 0.190 },  // t = 216° — upper-left petal tip
+  { x: 0.322, y: 0.410 },  // t = 144° — lower-left petal tip
+  { x: 0.500, y: 0.920 }   // stem root — final line, grounded
+];
+
 // ─────────────────────────────────────────────
 //  STATE
 // ─────────────────────────────────────────────
 let revealed = 0;
 let animating = false;
 let started = false;
-const total = stanzas.length;
+let act = 1;
+let total = stanzas.length;
 
 // ─────────────────────────────────────────────
 //  CANVAS — drifting starfield
@@ -403,8 +579,55 @@ function drawBg() {
 }
 
 let raf;
-function loop() {
-  drawBg();
+let warping = false;
+let warpStart = 0;
+const WARP_DURATION = 2200;
+let warpParticles = [];
+
+function spawnWarpParticles(n) {
+  for (let i = 0; i < n; i++) {
+    warpParticles.push({
+      angle: Math.random() * Math.PI * 2,
+      dist: Math.random() * 40,
+      speed: 4 + Math.random() * 6
+    });
+  }
+}
+
+function drawWarp(progress) {
+  const cx = W / 2, cy = H / 2;
+  ctx.fillStyle = 'rgba(5,8,16,0.55)';
+  ctx.fillRect(0, 0, W, H);
+
+  const speedBoost = Math.sin(progress * Math.PI); // eases up then down
+  spawnWarpParticles(Math.floor(6 + speedBoost * 14));
+  ctx.lineCap = 'round';
+
+  for (let i = warpParticles.length - 1; i >= 0; i--) {
+    const p = warpParticles[i];
+    const sx = cx + Math.cos(p.angle) * p.dist;
+    const sy = cy + Math.sin(p.angle) * p.dist;
+    p.dist += p.speed * (1 + speedBoost * 7);
+    const ex = cx + Math.cos(p.angle) * p.dist;
+    const ey = cy + Math.sin(p.angle) * p.dist;
+    const alpha = Math.min(1, speedBoost + 0.15);
+    ctx.strokeStyle = `rgba(240,244,255,${alpha})`;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(sx, sy);
+    ctx.lineTo(ex, ey);
+    ctx.stroke();
+    if (p.dist > Math.max(W, H)) warpParticles.splice(i, 1);
+  }
+}
+
+function loop(ts) {
+  if (warping) {
+    const progress = Math.min(1, (ts - warpStart) / WARP_DURATION);
+    drawWarp(progress);
+  } else {
+    drawBg();
+  }
   raf = requestAnimationFrame(loop);
 }
 
@@ -436,6 +659,108 @@ function buildStars() {
     el.addEventListener('click', onStarClick);
     document.body.appendChild(el);
     starEls.push(el);
+  });
+}
+
+let redStarEl = null;
+
+function buildRedStar() {
+  const el = document.createElement('div');
+  el.className = 'star-point red-star pulse-hint';
+  el.style.setProperty('--hb', '2.4s');
+  el.style.left = '50%';
+  el.style.top = '30%';
+  el.style.width = el.style.height = '8px';
+  el.addEventListener('click', onRedStarClick);
+  document.body.appendChild(el);
+  redStarEl = el;
+  return el;
+}
+
+function buildRoseStars() {
+  rosePositions.forEach((pos, i) => {
+    const el = document.createElement('div');
+    el.className = 'star-point rose-star' + (i === 0 ? ' pulse-hint' : '');
+    el.style.setProperty('--hb', `${2.8 + i * 0.4}s`);
+    el.style.left = `${pos.x * 100}%`;
+    el.style.top = `${pos.y * 100}%`;
+    const sz = i === total - 1 ? 7 : stanzas[i].size;
+    el.style.width = el.style.height = `${sz}px`;
+    el.dataset.index = i;
+    el.addEventListener('click', onStarClick);
+    document.body.appendChild(el);
+    starEls.push(el);
+  });
+}
+
+// ─────────────────────────────────────────────
+//  ROSE CURVE GEOMETRY — generated, not hand-drawn
+//  A five-petal polar rose (r = R·(0.5 + 0.5·cos(5θ)))
+//  for the bloom, plus a tightening inner spiral for the bud.
+// ─────────────────────────────────────────────
+function roseOuterPoints() {
+  const pts = [];
+  const steps = 140;
+  for (let i = 0; i <= steps; i++) {
+    const t = (i / steps) * Math.PI * 2;
+    const r = ROSE_OUTER_R * (0.5 + 0.5 * Math.cos(5 * t));
+    pts.push({
+      x: ROSE_CENTER.x + r * Math.cos(t),
+      y: ROSE_CENTER.y + r * Math.sin(t) * ROSE_Y_SQUASH
+    });
+  }
+  return pts;
+}
+
+function roseInnerSpiralPoints() {
+  const pts = [];
+  const steps = 60;
+  const turns = 2.6;
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const angle = t * turns * Math.PI * 2;
+    const r = 0.115 * (1 - t) + 0.014;
+    pts.push({
+      x: ROSE_CENTER.x + r * Math.cos(angle),
+      y: ROSE_CENTER.y + r * Math.sin(angle) * ROSE_Y_SQUASH
+    });
+  }
+  return pts;
+}
+
+function pointsToPath(pts) {
+  return pts
+    .map((p, i) => `${i === 0 ? 'M' : 'L'}${(p.x * 100).toFixed(2)},${(p.y * 100).toFixed(2)}`)
+    .join(' ');
+}
+
+function renderRoseCurve() {
+  const outerPts = roseOuterPoints();
+  const innerPts = roseInnerSpiralPoints();
+  document.getElementById('rose-outer').setAttribute('d', pointsToPath(outerPts) + ' Z');
+  document.getElementById('rose-inner').setAttribute('d', pointsToPath(innerPts));
+  return { outerPts, innerPts };
+}
+
+let roseDustEls = [];
+
+function buildRoseDust(outerPts, innerPts) {
+  const dustPositions = [];
+  // scatter along the outer bloom outline
+  for (let i = 0; i < outerPts.length; i += 6) dustPositions.push(outerPts[i]);
+  // scatter along the inner spiral
+  for (let i = 0; i < innerPts.length; i += 5) dustPositions.push(innerPts[i]);
+
+  dustPositions.forEach((p, i) => {
+    const el = document.createElement('div');
+    el.className = 'rose-dust';
+    el.style.left = `${p.x * 100}%`;
+    el.style.top = `${p.y * 100}%`;
+    const sz = 1 + Math.random() * 1.6;
+    el.style.width = el.style.height = `${sz}px`;
+    el.style.transitionDelay = `${(i % 12) * 90}ms`;
+    document.body.appendChild(el);
+    roseDustEls.push(el);
   });
 }
 
@@ -527,6 +852,30 @@ function finalChime() {
   });
 }
 
+function warpSound() {
+  if (!audioCtx) return;
+  const bufferSize = audioCtx.sampleRate * 1.6;
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+  const src = audioCtx.createBufferSource();
+  src.buffer = buffer;
+  const filter = audioCtx.createBiquadFilter();
+  filter.type = 'bandpass';
+  filter.frequency.setValueAtTime(200, audioCtx.currentTime);
+  filter.frequency.exponentialRampToValueAtTime(2200, audioCtx.currentTime + 0.9);
+  filter.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 1.6);
+  const g = audioCtx.createGain();
+  g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.25, audioCtx.currentTime + 0.5);
+  g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.6);
+  src.connect(filter);
+  filter.connect(g);
+  g.connect(masterGain);
+  src.start();
+  src.stop(audioCtx.currentTime + 1.6);
+}
+
 // ─────────────────────────────────────────────
 //  SHOOTING STAR
 // ─────────────────────────────────────────────
@@ -586,10 +935,37 @@ function typewrite(el, text, done) {
 const card = document.getElementById('active-card');
 const counter = document.getElementById('counter');
 const dismissHint = document.getElementById('dismiss-hint');
+let dismissTimer = null;
+let redStarTriggered = false;
+
+// reading time scales gently with stanza length, clamped to a sane range
+function autoDismissDelay(text) {
+  const words = text.trim().split(/\s+/).length;
+  return Math.max(4800, Math.min(11000, 2200 + words * 280));
+}
+
+function dismissCard() {
+  clearTimeout(dismissTimer);
+  if (!card.classList.contains('visible')) return;
+  card.classList.remove('visible');
+
+  if (revealed < total) {
+    counter.textContent = 'find the next star  ✦';
+    dismissHint.classList.remove('visible');
+  } else {
+    counter.style.opacity = '0';
+    dismissHint.classList.remove('visible');
+    if (act === 1 && !redStarTriggered) {
+      redStarTriggered = true;
+      setTimeout(buildRedStar, 1400);
+    }
+  }
+}
 
 function showStanza(index) {
   if (animating) return;
   animating = true;
+  clearTimeout(dismissTimer);
 
   const s = stanzas[index];
   if (s.final) {
@@ -610,6 +986,7 @@ function showStanza(index) {
         counter.style.opacity = '0';
         dismissHint.classList.remove('visible');
       }
+      dismissTimer = setTimeout(dismissCard, autoDismissDelay(s.lines));
     });
     card.classList.add('visible');
   }, 400);
@@ -644,7 +1021,7 @@ function onStarClick(e) {
   showStanza(i);
 
   if (i === total - 1) {
-    // final poem complete
+    // poem complete
     finalChime();
     document.getElementById('end-bloom').classList.add('lit');
     setTimeout(shootingStar, 1000);
@@ -653,13 +1030,79 @@ function onStarClick(e) {
   }
 }
 
-// click-away to dismiss stanza
+// ─────────────────────────────────────────────
+//  RED STAR → HYPERSPACE → ROSE CONSTELLATION
+// ─────────────────────────────────────────────
+function onRedStarClick(e) {
+  const el = e.currentTarget;
+  el.removeEventListener('click', onRedStarClick);
+  el.classList.remove('pulse-hint');
+  el.classList.add('active');
+  warpSound();
+
+  counter.style.opacity = '0';
+  dismissHint.classList.remove('visible');
+
+  setTimeout(() => { if (redStarEl) redStarEl.remove(); }, 500);
+
+  startWarp();
+}
+
+function startWarp() {
+  warping = true;
+  warpStart = performance.now();
+  warpParticles = [];
+  document.body.classList.add('warping');
+  document.getElementById('end-bloom').classList.remove('lit');
+
+  // the first poem's stars fade away as we travel
+  starEls.forEach(el => {
+    el.style.transition = 'opacity 0.9s ease';
+    el.style.opacity = '0';
+  });
+  setTimeout(() => {
+    starEls.forEach(el => el.remove());
+    starEls.length = 0;
+  }, 900);
+
+  setTimeout(() => {
+    warping = false;
+    document.body.classList.remove('warping');
+    beginRoseAct();
+  }, WARP_DURATION);
+}
+
+function beginRoseAct() {
+  act = 2;
+
+  const { outerPts, innerPts } = renderRoseCurve();
+  buildRoseDust(outerPts, innerPts);
+
+  document.getElementById('rose-lines').classList.add('visible');
+  setTimeout(() => {
+    roseDustEls.forEach(el => el.classList.add('visible'));
+  }, 200);
+
+  const caption = document.getElementById('rose-caption');
+  caption.classList.add('visible');
+  setTimeout(() => caption.classList.remove('visible'), 3600);
+
+  setTimeout(() => {
+    stanzas = stanzas2;
+    total = stanzas.length;
+    revealed = 0;
+    buildRoseStars();
+    counter.style.opacity = '1';
+    counter.textContent = 'touch a star  ✦';
+    starEls[0].classList.add('pulse-hint');
+  }, 1800);
+}
+
+// click-away to dismiss stanza (also works on the final stanza)
 document.addEventListener('click', (e) => {
   if (e.target.closest('.star-point') || e.target.closest('#intro') || e.target.closest('#begin-btn')) return;
-  if (!animating && card.classList.contains('visible') && revealed < total) {
-    card.classList.remove('visible');
-    counter.textContent = 'find the next star  ✦';
-    dismissHint.classList.remove('visible');
+  if (!animating && card.classList.contains('visible')) {
+    dismissCard();
   }
 });
 
