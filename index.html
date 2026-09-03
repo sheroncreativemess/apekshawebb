@@ -39,6 +39,11 @@ body.act4 .card.final p{color:#ffe3ee;text-shadow:0 2px 6px #000,0 0 16px rgba(0
 .warp-flash{position:fixed;inset:0;z-index:62;background:radial-gradient(circle at 50% 50%,rgba(255,246,250,.92),rgba(255,236,244,.15) 45%,rgba(255,236,244,0) 72%);opacity:0;pointer-events:none}
 .warp-flash.show{opacity:1;transition:opacity .18s ease}
 #warp-caption{position:fixed;left:50%;top:54%;transform:translate(-50%,-50%);z-index:63;color:rgba(255,224,236,.82);font-style:italic;letter-spacing:.16em;font-size:.82rem;text-transform:uppercase;opacity:0;transition:opacity .6s ease;text-align:center;pointer-events:none}#warp-caption.show{opacity:1}
+/* Act IV audio toggle — only appears once Act IV is showing */
+#audio-toggle{position:fixed;left:22px;bottom:24px;z-index:30;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,208,224,.28);background:rgba(4,6,14,.35);color:rgba(255,224,236,.78);font-style:italic;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .6s ease,border-color .3s,color .3s,transform .2s}
+body.act4 #audio-toggle{opacity:1;pointer-events:auto}
+#audio-toggle:hover{transform:scale(1.08);border-color:rgba(255,208,224,.55)}
+#audio-toggle.muted{color:rgba(200,212,232,.4);border-color:rgba(200,212,232,.2)}
 </style>
 </head>
 <body>
@@ -54,9 +59,11 @@ body.act4 .card.final p{color:#ffe3ee;text-shadow:0 2px 6px #000,0 0 16px rgba(0
     <g id="mirror-stars"></g>
   </g>
 </svg>
-<div id="rose-caption" class="sky-caption"></div><div id="heart-caption" class="sky-caption"></div><div id="moon-caption" class="sky-caption">✦  ✦</div>
+<div id="rose-caption" class="sky-caption">a second constellation begins to bloom</div><div id="heart-caption" class="sky-caption">a third constellation stirs, shaped like a heart</div><div id="moon-caption" class="sky-caption">✦ the sky exhales, and the sea comes into view ✦</div>
 <div id="stanza-panel"><div id="card" class="card"></div></div><div id="act4-transition" title="continue"></div><div id="counter">touch a star</div><div id="dismiss">click anywhere to continue ·</div>
 <div id="warp-caption">✦ crossing into the last sky ✦</div>
+<audio id="act4-audio" src="cinderella.mp3" preload="none" loop></audio>
+<button id="audio-toggle" class="audio-btn" title="toggle music">♪</button>
 <div id="intro"><div class="intro-inner"><h1>knowing the night</h1><p>a poem in stars</p><button id="begin">enter the sky</button></div></div>
 <div id="nav"><button class="nav on" data-act="1">I</button><button class="nav" data-act="2">II</button><button class="nav" data-act="3">III</button><button class="nav" data-act="4">IV</button></div>
 <script>
@@ -98,6 +105,45 @@ const POS1=[{x:.18,y:.22},{x:.72,y:.16},{x:.44,y:.38},{x:.82,y:.52},{x:.25,y:.62
 const POS2=[{x:.72,y:.30},{x:.568,y:.122},{x:.322,y:.19},{x:.322,y:.41},{x:.50,y:.82}];
 const POS3=[{x:.363,y:.20},{x:.637,y:.20},{x:.22,y:.337},{x:.78,y:.337},{x:.50,y:.70}];
 let act=1,started=false,stanzas=ACT1.slice(),stars=[],revealed=0,animating=false,finished=false,dismissTimer=null;
+const act4Audio=document.getElementById('act4-audio'),audioToggle=document.getElementById('audio-toggle');
+const ACT4_VOL=0.55;
+function fadeAudio(el,to,dur=800,onDone){
+  const from=el.volume,t0=performance.now();
+  function step(now){
+    const t=Math.min(1,(now-t0)/dur);
+    el.volume=from+(to-from)*t;
+    if(t<1)requestAnimationFrame(step);else if(onDone)onDone();
+  }
+  requestAnimationFrame(step);
+}
+/* Called synchronously inside a click handler, before any setTimeout delay, so the
+   browser still counts it as a user-gesture-triggered play (autoplay policies require this). */
+function primeAct4Audio(){
+  try{
+    act4Audio.currentTime=0;
+    act4Audio.volume=0;
+    const p=act4Audio.play();
+    if(p&&p.catch)p.catch(()=>{});
+    audioToggle.classList.remove('muted');
+  }catch(e){}
+}
+function stopAct4Audio(){
+  if(!act4Audio.paused){
+    fadeAudio(act4Audio,0,500,()=>act4Audio.pause());
+  }
+}
+audioToggle.onclick=(e)=>{
+  e.stopPropagation();
+  if(act4Audio.paused){
+    const p=act4Audio.play();
+    if(p&&p.catch)p.catch(()=>{});
+    fadeAudio(act4Audio,ACT4_VOL,500);
+    audioToggle.classList.remove('muted');
+  }else{
+    fadeAudio(act4Audio,0,400,()=>act4Audio.pause());
+    audioToggle.classList.add('muted');
+  }
+};
 const card=document.getElementById('card'),counter=document.getElementById('counter'),dismiss=document.getElementById('dismiss');
 let ctx=document.getElementById('sky').getContext('2d'),W=0,H=0,bg=[];
 function resize(){W=document.getElementById('sky').width=innerWidth;H=document.getElementById('sky').height=innerHeight}
@@ -272,10 +318,12 @@ function beginAct4(){
   counter.style.opacity=1;
   counter.textContent='touch a star  ✦';
   showCaption('moon-caption');
+  if(act4Audio.paused){primeAct4Audio();}
+  fadeAudio(act4Audio,ACT4_VOL,1200);
 }
-function beginAct1(){act=1;stanzas=ACT1.slice();finished=false;revealed=0;document.body.classList.remove('act4');document.getElementById('act4-transition').classList.remove('show');document.getElementById('moon-scene').classList.remove('show');document.getElementById('reading-veil').classList.remove('show');document.getElementById('final-glow').classList.remove('show');buildMirror();setActGroup(null);makeStars(POS1,ACT1);counter.style.opacity=1;counter.textContent='touch a star  ✦'}
-function beginAct2(){act=2;stanzas=ACT2.slice();finished=false;revealed=0;document.body.classList.remove('act4');document.getElementById('act4-transition').classList.remove('show');document.getElementById('moon-scene').classList.remove('show');document.getElementById('reading-veil').classList.remove('show');setActGroup('rose-lines');let o=rosePts(),inn=rosePts(true);document.getElementById('rose-outer').setAttribute('d',pointsPath(o)+' Z');document.getElementById('rose-inner').setAttribute('d',pointsPath(inn));makeStars(POS2,ACT2,'rose-star');counter.style.opacity=1;counter.textContent='touch a star  ✦';showCaption('rose-caption')}
-function beginAct3(){act=3;stanzas=ACT3.slice();finished=false;revealed=0;document.body.classList.remove('act4');document.getElementById('act4-transition').classList.remove('show');document.getElementById('moon-scene').classList.remove('show');document.getElementById('reading-veil').classList.remove('show');setActGroup('heart-lines');let o=heartPts(1),inn=heartPts(.58);document.getElementById('heart-outer').setAttribute('d',pointsPath(o)+' Z');document.getElementById('heart-inner').setAttribute('d',pointsPath(inn));makeStars(POS3,ACT3,'heart-star');counter.style.opacity=1;counter.textContent='touch a star  ✦';showCaption('heart-caption')}
+function beginAct1(){act=1;stanzas=ACT1.slice();finished=false;revealed=0;stopAct4Audio();document.body.classList.remove('act4');document.getElementById('act4-transition').classList.remove('show');document.getElementById('moon-scene').classList.remove('show');document.getElementById('reading-veil').classList.remove('show');document.getElementById('final-glow').classList.remove('show');buildMirror();setActGroup(null);makeStars(POS1,ACT1);counter.style.opacity=1;counter.textContent='touch a star  ✦'}
+function beginAct2(){act=2;stanzas=ACT2.slice();finished=false;revealed=0;stopAct4Audio();document.body.classList.remove('act4');document.getElementById('act4-transition').classList.remove('show');document.getElementById('moon-scene').classList.remove('show');document.getElementById('reading-veil').classList.remove('show');setActGroup('rose-lines');let o=rosePts(),inn=rosePts(true);document.getElementById('rose-outer').setAttribute('d',pointsPath(o)+' Z');document.getElementById('rose-inner').setAttribute('d',pointsPath(inn));makeStars(POS2,ACT2,'rose-star');counter.style.opacity=1;counter.textContent='touch a star  ✦';showCaption('rose-caption')}
+function beginAct3(){act=3;stanzas=ACT3.slice();finished=false;revealed=0;stopAct4Audio();document.body.classList.remove('act4');document.getElementById('act4-transition').classList.remove('show');document.getElementById('moon-scene').classList.remove('show');document.getElementById('reading-veil').classList.remove('show');setActGroup('heart-lines');let o=heartPts(1),inn=heartPts(.58);document.getElementById('heart-outer').setAttribute('d',pointsPath(o)+' Z');document.getElementById('heart-inner').setAttribute('d',pointsPath(inn));makeStars(POS3,ACT3,'heart-star');counter.style.opacity=1;counter.textContent='touch a star  ✦';showCaption('heart-caption')}
 function pointsPath(p){return p.map((x,i)=>(i?'L':'M')+(x.x*100).toFixed(2)+','+(x.y*100).toFixed(2)).join(' ')}
 function showCaption(id){document.querySelectorAll('.sky-caption').forEach(e=>e.classList.remove('show'));let e=document.getElementById(id);if(e){e.classList.add('show');setTimeout(()=>e.classList.remove('show'),3200)}}
 function finale(){document.getElementById('final-glow').classList.add('show');let n=55;for(let i=0;i<n;i++){let p=document.createElement('div');p.className='burst';p.style.setProperty('--a',Math.random()*360+'deg');p.style.setProperty('--d',90+Math.random()*Math.min(innerWidth,innerHeight)*.42+'px');p.style.setProperty('--dur',1.2+Math.random()*1.8+'s');document.body.appendChild(p);setTimeout(()=>p.remove(),3600)}}
@@ -325,6 +373,7 @@ function continueToNextAct(){
   }else if(act===2){
     beginAct3();
   }else if(act===3){
+    primeAct4Audio();
     playWarpTransition(beginAct4);
   }else{
     /* Act 4 is the end. Let the mirror bloom instead. */
@@ -332,8 +381,8 @@ function continueToNextAct(){
   }
 }
 document.getElementById('act4-transition').onclick=continueToNextAct;
-function jump(n){if(!started){started=true;document.getElementById('intro').style.opacity=0;setTimeout(()=>document.getElementById('intro').remove(),900)}hideCard();if(n===1)beginAct1();if(n===2)beginAct2();if(n===3)beginAct3();if(n===4)beginAct4();document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('on',+b.dataset.act===n))}
-document.getElementById('begin').onclick=()=>jump(1);document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>jump(+b.dataset.act));document.addEventListener('click',e=>{if(e.target.closest('.star-point,.mirror-dot,#nav,#intro'))return;if(card.classList.contains('show'))hideCard()});window.addEventListener('resize',()=>{resize();seed();if(act===4){buildMirror();addMirrorDots()}});resize();seed();buildMirror();requestAnimationFrame(raf);
+function jump(n){if(!started){started=true;document.getElementById('intro').style.opacity=0;setTimeout(()=>document.getElementById('intro').remove(),900)}hideCard();if(n===4)primeAct4Audio();if(n===1)beginAct1();if(n===2)beginAct2();if(n===3)beginAct3();if(n===4)beginAct4();document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('on',+b.dataset.act===n))}
+document.getElementById('begin').onclick=()=>jump(1);document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>jump(+b.dataset.act));document.addEventListener('click',e=>{if(e.target.closest('.star-point,.mirror-dot,#nav,#intro,#audio-toggle'))return;if(card.classList.contains('show'))hideCard()});window.addEventListener('resize',()=>{resize();seed();if(act===4){buildMirror();addMirrorDots()}});resize();seed();buildMirror();requestAnimationFrame(raf);
 </script>
 </body>
 </html>
