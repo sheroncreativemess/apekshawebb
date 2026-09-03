@@ -4,868 +4,336 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>knowing the night</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --void: #050810;
-    --deep: #0a0f1e;
-    --silver: #c8d4e8;
-    --starwhite: #f0f4ff;
-    --amber: #e8c87a;
-    --poem-text: #dde6f5;
-    --rose: #e0748c;
-    --heart: #ff5c77;
-  }
-
-  html, body {
-    width: 100%; height: 100%;
-    background: var(--void);
-    overflow: hidden;
-    font-family: 'EB Garamond', Georgia, serif;
-    color: var(--silver);
-    cursor: default;
-    user-select: none;
-  }
-
-  #sky { position: fixed; inset: 0; z-index: 0; }
-
-  #aurora-bg {
-    position: fixed; bottom: 0; left: 0; right: 0; height: 38vh;
-    background: linear-gradient(to top, rgba(10,20,50,0), rgba(15,40,80,0.12) 30%, rgba(10,30,60,0.06) 70%, transparent);
-    z-index: 1; pointer-events: none;
-    animation: aurora-breathe 12s ease-in-out infinite alternate;
-  }
-  @keyframes aurora-breathe {
-    0%   { opacity: 0.4; transform: scaleY(1); }
-    50%  { opacity: 0.7; transform: scaleY(1.08); }
-    100% { opacity: 0.45; transform: scaleY(0.96); }
-  }
-
-  .star-point {
-    position: fixed; border-radius: 50%; background: var(--starwhite);
-    transform: translate(-50%, -50%); cursor: pointer; z-index: 10;
-    transition: box-shadow 0.4s ease;
-    animation: hb var(--hb, 3s) ease-in-out infinite;
-  }
-  .star-point::after { content: ''; position: absolute; inset: -8px; border-radius: 50%; }
-  .star-point.active { background: var(--amber); box-shadow: 0 0 8px 3px rgba(232,200,122,0.5), 0 0 24px 8px rgba(232,200,122,0.15); animation: none; }
-  .star-point.pulse-hint { animation: hint-pulse 2s ease-in-out infinite; }
-
-  @keyframes hb {
-    0%,100% { box-shadow: 0 0 2px 1px rgba(240,244,255,0.3); opacity: 0.8; }
-    50%      { box-shadow: 0 0 6px 2px rgba(240,244,255,0.5); opacity: 1; }
-  }
-  @keyframes hint-pulse {
-    0%,100% { box-shadow: 0 0 4px 2px rgba(232,200,122,0.2), 0 0 12px 4px rgba(232,200,122,0.08); transform: translate(-50%,-50%) scale(1); }
-    50%      { box-shadow: 0 0 10px 4px rgba(232,200,122,0.5), 0 0 28px 10px rgba(232,200,122,0.18); transform: translate(-50%,-50%) scale(1.18); }
-  }
-
-  /* ── RED STAR ── */
-  .star-point.red-star { background: #ff4d4d; }
-  .star-point.red-star.pulse-hint { animation: red-pulse 1.8s ease-in-out infinite; }
-  @keyframes red-pulse {
-    0%,100% { box-shadow: 0 0 6px 3px rgba(255,77,77,0.35), 0 0 16px 6px rgba(255,77,77,0.12); transform: translate(-50%,-50%) scale(1); }
-    50%      { box-shadow: 0 0 14px 5px rgba(255,77,77,0.6), 0 0 34px 12px rgba(255,77,77,0.25); transform: translate(-50%,-50%) scale(1.22); }
-  }
-  .star-point.red-star.active { background: #ff2f2f; box-shadow: 0 0 10px 4px rgba(255,60,60,0.6), 0 0 30px 10px rgba(255,60,60,0.25); animation: none; }
-
-  /* ── AURORA TRIGGER STAR ── */
-  .star-point.aurora-star { background: #a8d8ff; box-shadow: 0 0 6px 2px rgba(140,200,255,0.4); }
-  .star-point.aurora-star.pulse-hint { animation: aurora-pulse 2.2s ease-in-out infinite; }
-  @keyframes aurora-pulse {
-    0%   { box-shadow: 0 0 6px 3px rgba(100,200,255,0.4), 0 0 16px 6px rgba(100,200,255,0.15); transform: translate(-50%,-50%) scale(1); }
-    33%  { box-shadow: 0 0 10px 4px rgba(180,140,255,0.5), 0 0 26px 10px rgba(180,140,255,0.2); transform: translate(-50%,-50%) scale(1.25); }
-    66%  { box-shadow: 0 0 10px 4px rgba(100,255,200,0.45), 0 0 24px 9px rgba(100,255,200,0.18); transform: translate(-50%,-50%) scale(1.12); }
-    100% { box-shadow: 0 0 6px 3px rgba(100,200,255,0.4), 0 0 16px 6px rgba(100,200,255,0.15); transform: translate(-50%,-50%) scale(1); }
-  }
-  .star-point.aurora-star.active { background: #e8f8ff; box-shadow: 0 0 14px 6px rgba(180,240,255,0.7), 0 0 40px 16px rgba(140,200,255,0.3); animation: none; }
-
-  /* ── ROSE STARS ── */
-  .star-point.rose-star { background: var(--rose); }
-
-  /* ── HEART STARS ── */
-  .star-point.heart-star { background: var(--heart); }
-
-  /* ── STANZA CARD ── */
-  #stanza-panel { position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; pointer-events: none; }
-  .stanza-card { max-width: min(580px,88vw); text-align: center; padding: 0 1.5rem; opacity: 0; transform: translateY(18px); transition: opacity 0.8s ease, transform 0.8s ease; pointer-events: none; }
-  .stanza-card.visible { opacity: 1; transform: translateY(0); }
-  .stanza-card p { font-family: 'EB Garamond', Georgia, serif; font-size: clamp(1.05rem,2.4vw,1.35rem); line-height: 1.95; color: var(--poem-text); font-style: italic; white-space: pre-line; }
-  .stanza-card p .char { display: inline; opacity: 0; transition: opacity 0.04s ease; }
-  .stanza-card.final p { font-size: clamp(1.1rem,2.8vw,1.5rem); color: var(--amber); font-weight: 500; letter-spacing: 0.04em; }
-
-  /* ── WARP FLASH ── */
-  #warp-flash { position: fixed; inset: 0; z-index: 15; pointer-events: none; opacity: 0; }
-  body.warping #warp-flash { animation: warp-flash 2.2s ease-in-out forwards; }
-  @keyframes warp-flash {
-    0%  { opacity: 0; background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0) 0%, transparent 70%); }
-    45% { opacity: 0.4; background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.55) 0%, rgba(200,70,80,0.18) 40%, transparent 78%); }
-    100%{ opacity: 0; background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0) 0%, transparent 70%); }
-  }
-  body.warping #sky { filter: brightness(1.15); }
-
-  /* ── CONSTELLATION SVG ── */
-  #constellation-lines { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 9; pointer-events: none; }
-  #rose-lines { opacity: 0; transition: opacity 2.2s ease; }
-  #rose-lines.visible { opacity: 1; }
-  #rose-lines path { fill: none; vector-effect: non-scaling-stroke; }
-  #rose-lines path.curve { stroke: rgba(224,116,140,0.55); stroke-width: 1.1; }
-  #rose-lines path.curve.inner { stroke: rgba(232,150,168,0.5); stroke-width: 0.9; }
-  #rose-lines path.stem { stroke: rgba(200,110,130,0.6); stroke-width: 1.2; }
-  #rose-lines path.leaf { stroke: rgba(120,180,120,0.4); fill: rgba(120,180,120,0.05); stroke-width: 0.9; }
-
-  #heart-lines { opacity: 0; transition: opacity 2.4s ease; }
-  #heart-lines.visible { opacity: 1; }
-  #heart-lines path { fill: none; vector-effect: non-scaling-stroke; }
-  #heart-lines path.curve { stroke: rgba(255,92,119,0.55); stroke-width: 1.2; }
-  #heart-lines path.curve.inner { stroke: rgba(255,143,163,0.45); stroke-width: 0.85; }
-
-  /* ── DUST ── */
-  .rose-dust, .heart-dust {
-    position: fixed; border-radius: 50%;
-    transform: translate(-50%,-50%); pointer-events: none; z-index: 8;
-    opacity: 0; transition: opacity 2s ease;
-  }
-  .rose-dust { background: rgba(228,140,158,0.75); box-shadow: 0 0 4px 1px rgba(224,116,140,0.4); }
-  .heart-dust { background: rgba(255,130,155,0.8); box-shadow: 0 0 4px 1px rgba(255,92,119,0.45); }
-  .rose-dust.visible, .heart-dust.visible { opacity: 1; }
-
-  /* ── HEART GLOW ── */
-  #heart-glow {
-    position: fixed; left: 50%; top: 45%; width: 62vw; height: 62vw;
-    max-width: 720px; max-height: 720px; transform: translate(-50%,-50%);
-    border-radius: 50%; background: radial-gradient(circle, rgba(255,110,140,0.12) 0%, transparent 70%);
-    z-index: 6; opacity: 0; pointer-events: none; transition: opacity 2.6s ease;
-  }
-  #heart-glow.visible { opacity: 1; animation: hb-glow 1.8s ease-in-out infinite; }
-  @keyframes hb-glow {
-    0%,100%{ transform: translate(-50%,-50%) scale(1); }
-    15%    { transform: translate(-50%,-50%) scale(1.05); }
-    45%    { transform: translate(-50%,-50%) scale(1.08); }
-  }
-
-  /* ── END BLOOM ── */
-  #end-bloom { position: fixed; inset: 0; z-index: 5; pointer-events: none; opacity: 0; background: radial-gradient(ellipse at 50% 50%, rgba(232,200,122,0.07) 0%, transparent 70%); transition: opacity 3s ease; }
-  #end-bloom.lit { opacity: 1; }
-
-  /* ── CAPTIONS ── */
-  .sky-caption {
-    position: fixed; top: 12%; left: 50%; transform: translateX(-50%); z-index: 30;
-    font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic;
-    font-size: clamp(0.85rem,2vw,1.05rem); letter-spacing: 0.1em; text-align: center;
-    white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 1.6s ease;
-  }
-  #rose-caption { color: rgba(224,116,140,0.6); }
-  #heart-caption { color: rgba(255,143,163,0.65); }
-  .sky-caption.visible { opacity: 1; }
-
-  /* ── COUNTER / DISMISS ── */
-  #counter { position: fixed; bottom: 2.5rem; left: 50%; transform: translateX(-50%); z-index: 30; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 0.78rem; letter-spacing: 0.22em; color: rgba(200,212,232,0.25); text-transform: uppercase; transition: opacity 0.6s; pointer-events: none; white-space: nowrap; }
-  #dismiss-hint { position: fixed; bottom: 2.5rem; right: 2.5rem; z-index: 30; font-size: 0.72rem; letter-spacing: 0.18em; color: rgba(200,212,232,0.18); text-transform: uppercase; font-family: 'Cormorant Garamond', Georgia, serif; pointer-events: none; transition: opacity 0.6s; opacity: 0; }
-  #dismiss-hint.visible { opacity: 1; pointer-events: all; cursor: pointer; }
-
-  /* ── SHOOTING STAR ── */
-  .shoot { position: fixed; width: 2px; height: 2px; background: white; border-radius: 50%; z-index: 2; pointer-events: none; animation: shoot-anim 0.8s ease-out forwards; transform-origin: left center; }
-  @keyframes shoot-anim { 0%{ opacity:1;transform:scaleX(1); } 60%{ opacity:0.6;transform:scaleX(60); } 100%{ opacity:0;transform:scaleX(100) translateX(40px); } }
-
-  /* ── INTRO ── */
-  #intro { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.8rem; background: rgba(5,8,16,0.96); transition: opacity 1.2s ease; }
-  #intro.hidden { opacity: 0; pointer-events: none; }
-  #intro h1 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: clamp(1.3rem,4vw,2rem); font-weight: 300; font-style: italic; color: var(--silver); letter-spacing: 0.12em; opacity: 0.7; }
-  #intro p  { font-size: clamp(0.85rem,1.8vw,1rem); color: rgba(200,212,232,0.4); letter-spacing: 0.18em; text-transform: uppercase; }
-  #begin-btn { background: none; border: 1px solid rgba(200,212,232,0.2); color: rgba(200,212,232,0.55); font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; font-style: italic; letter-spacing: 0.2em; padding: 0.65rem 2.2rem; cursor: pointer; transition: all 0.4s ease; border-radius: 1px; }
-  #begin-btn:hover { color: rgba(232,200,122,0.8); border-color: rgba(232,200,122,0.35); }
-
-  @media (prefers-reduced-motion: reduce) { .star-point, .stanza-card, #aurora-bg, .shoot { animation: none; transition: none; } }
+*{box-sizing:border-box;margin:0;padding:0}html,body{width:100%;height:100%;overflow:hidden;background:#04060b;color:#d8e1ef;font-family:Georgia,'Times New Roman',serif}button{font:inherit}
+:root{--bg:#04060b;--text:#e4ebf6;--muted:#97a5bc;--gold:#e8c87a;--pink:#f08aaa;--pink2:#ffd0dd;--rose:#e0748c;--heart:#ff5c77}
+#sky{position:fixed;inset:0;width:100%;height:100%;z-index:0}#aurora{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.35;background:radial-gradient(ellipse at 20% 75%,rgba(41,65,120,.18),transparent 55%),radial-gradient(ellipse at 80% 65%,rgba(76,38,105,.13),transparent 55%)}
+#moon-scene{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:0;transition:opacity 1.6s ease}#moon-scene.show{opacity:1}#moon-haze{position:absolute;inset:0;background:radial-gradient(circle at 78% 18%,rgba(185,202,235,.08),transparent 30%),linear-gradient(to top,rgba(2,4,10,.96),transparent 46%)}#moon{position:absolute;right:9vw;top:11vh;width:clamp(66px,7vw,105px);aspect-ratio:1;border-radius:50%;opacity:.22;background:radial-gradient(circle at 34% 30%,#fffde9 0 8%,#eee7ce 55%,#bfb9a2 100%);box-shadow:0 0 28px 7px rgba(238,230,202,.07),0 0 90px 25px rgba(200,210,230,.04)}
+#reading-veil{position:fixed;inset:0;z-index:3;pointer-events:none;opacity:0;transition:opacity 1.3s ease;background:radial-gradient(ellipse at 50% 50%,rgba(1,3,8,.75) 0 28%,rgba(1,3,8,.45) 52%,rgba(1,3,8,.1) 77%,transparent)}#reading-veil.show{opacity:1}
+#stanza-panel{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:5vh 8vw;pointer-events:none}.card{max-width:min(680px,84vw);text-align:center;opacity:0;transform:translateY(16px);transition:opacity .7s,transform .7s}.card.show{opacity:1;transform:none}.card p{font-size:clamp(1.02rem,2.2vw,1.34rem);line-height:1.9;font-style:italic;color:var(--text);white-space:pre-line;text-shadow:0 2px 4px #000,0 0 18px rgba(0,0,0,.8)}.card.final p{font-size:clamp(1.1rem,2.7vw,1.52rem);color:var(--pink2)}
+/* Act IV only: extra legibility over the moonlit/reading-veil scene — a soft dark plate behind the text and a stronger, whiter glow on the letters themselves. */
+body.act4 .card{background:radial-gradient(ellipse at 50% 50%,rgba(4,6,14,.62) 0%,rgba(4,6,14,.42) 48%,rgba(4,6,14,.12) 74%,transparent 90%);border-radius:28px;padding:4.5vh 4vw}
+body.act4 .card p{color:#f5f2fb;text-shadow:0 2px 6px #000,0 0 14px rgba(0,0,0,.95),0 0 34px rgba(0,0,0,.7)}
+body.act4 .card.final p{color:#ffe3ee;text-shadow:0 2px 6px #000,0 0 16px rgba(0,0,0,.95),0 0 40px rgba(245,126,163,.35)}
+.char{opacity:0}.char.on{opacity:1}
+#counter{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:30;font-size:.73rem;letter-spacing:.19em;text-transform:uppercase;color:rgba(200,212,232,.32);pointer-events:none}#dismiss{position:fixed;bottom:25px;right:26px;z-index:30;font-size:.68rem;letter-spacing:.17em;text-transform:uppercase;color:rgba(200,212,232,.22);opacity:0;transition:opacity .4s}#dismiss.show{opacity:1}
+.sky-caption{position:fixed;top:9%;left:50%;transform:translateX(-50%);z-index:31;opacity:0;transition:opacity 1s;color:rgba(240,210,150,.65);font-style:italic;letter-spacing:.1em;font-size:.95rem;text-align:center;white-space:nowrap}.sky-caption.show{opacity:1}
+#constellations{position:fixed;inset:0;width:100%;height:100%;z-index:8;pointer-events:none}.group{opacity:0;transition:opacity 1.2s}.group.active{opacity:1}.group path{fill:none;vector-effect:non-scaling-stroke}
+#rose-lines path{stroke:rgba(224,116,140,.52);stroke-width:1.05}#rose-lines .inner{stroke:rgba(240,160,180,.38);stroke-width:.82}#heart-lines path{stroke:rgba(255,92,119,.55);stroke-width:1.08}#heart-lines .inner{stroke:rgba(255,150,170,.38);stroke-width:.82}
+/* Act 4: one clean mirror, 16 lines total from inner rim to wavy outer edge */
+#mirror-lines .outer{fill:none;stroke:var(--pink);stroke-width:1.55;filter:drop-shadow(0 0 5px rgba(245,126,163,.58));vector-effect:non-scaling-stroke}#mirror-lines .inner{fill:rgba(10,5,10,.20);stroke:var(--pink2);stroke-width:1.22;vector-effect:non-scaling-stroke}#mirror-lines .spoke{stroke:rgba(247,166,190,.84);stroke-width:1.02;vector-effect:non-scaling-stroke}#mirror-lines .spoke.strong{stroke:rgba(255,214,228,.96);stroke-width:1.24}#mirror-lines .edge{stroke:rgba(249,162,190,.76);stroke-width:1.02;vector-effect:non-scaling-stroke}
+#mirror-stars circle{fill:var(--pink2);filter:drop-shadow(0 0 5px rgba(255,181,205,.92));vector-effect:non-scaling-stroke}
+/* Act IV star hitboxes enlarged for easier touch/click targeting; visible dot stays the same size. */
+.mirror-dot{position:fixed;width:34px;height:34px;border-radius:50%;transform:translate(-50%,-50%);z-index:16;cursor:pointer;background:transparent;pointer-events:auto}.mirror-dot::before{content:'';position:absolute;left:50%;top:50%;width:8px;height:8px;border-radius:50%;transform:translate(-50%,-50%);background:var(--pink2);box-shadow:0 0 9px 3px rgba(255,165,196,.68),0 0 20px 7px rgba(245,126,163,.25);transition:transform .25s,box-shadow .25s}.mirror-dot:hover::before,.mirror-dot.hint::before{transform:translate(-50%,-50%) scale(1.65);box-shadow:0 0 13px 5px rgba(255,188,211,.88),0 0 28px 9px rgba(245,126,163,.32)}.mirror-dot.done::before{background:#fff0f5;box-shadow:0 0 12px 5px rgba(255,207,220,.84)}
+#act4-transition{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:17;width:18px;height:18px;border-radius:50%;background:#ffd0dd;box-shadow:0 0 18px 7px rgba(255,181,205,.72),0 0 42px 14px rgba(245,126,163,.28);opacity:0;pointer-events:none;cursor:pointer;transition:opacity .8s ease}#act4-transition.show{opacity:1;pointer-events:auto;animation:transitionPulse 1.8s ease-in-out infinite}@keyframes transitionPulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.28)}}
+#final-glow{position:fixed;inset:0;z-index:4;pointer-events:none;opacity:0;transition:opacity 1.5s;background:radial-gradient(circle at 50% 52%,rgba(245,126,163,.10),transparent 53%)}#final-glow.show{opacity:1}
+.burst{position:fixed;left:50%;top:52%;width:2px;height:2px;border-radius:50%;background:#ffd7e3;box-shadow:0 0 6px 1px rgba(255,185,207,.8);z-index:13;pointer-events:none;animation:burst var(--dur) cubic-bezier(.1,.78,.2,1) forwards}@keyframes burst{0%{opacity:0;transform:rotate(var(--a)) translateX(0)}15%{opacity:1}100%{opacity:0;transform:rotate(var(--a)) translateX(var(--d))}}
+.star-point{position:fixed;transform:translate(-50%,-50%);border-radius:50%;z-index:11;cursor:pointer;background:#f2e7c9;box-shadow:0 0 8px 3px rgba(240,230,200,.42);transition:transform .2s,box-shadow .2s}.star-point.hint{animation:pulse 1.5s ease-in-out infinite}@keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.32);box-shadow:0 0 11px 4px rgba(245,200,130,.6)}}
+#intro{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:rgba(4,6,11,.97);transition:opacity 1s}.intro-inner{text-align:center}.intro-inner h1{font-size:clamp(1.4rem,4vw,2.1rem);font-weight:400;font-style:italic;letter-spacing:.12em;color:#c9d3e5}.intro-inner p{margin-top:1.5rem;font-size:.88rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(200,212,232,.4)}#begin{margin-top:2rem;padding:.7rem 2.3rem;border:1px solid rgba(200,212,232,.22);background:none;color:rgba(200,212,232,.62);cursor:pointer;font-style:italic;letter-spacing:.17em}#begin:hover{color:var(--pink2);border-color:rgba(245,140,175,.45)}
+#nav{position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:150;display:flex;flex-direction:column;gap:1rem}.nav{border:0;background:none;color:rgba(200,212,232,.34);font-style:italic;cursor:pointer;padding:4px}.nav::before{content:'';display:block;width:5px;height:5px;border-radius:50%;margin:0 auto 5px;background:rgba(200,212,232,.25)}.nav.on{color:var(--pink2)}.nav.on::before{background:var(--pink);box-shadow:0 0 8px 3px rgba(245,126,163,.35)}
+@media(max-width:700px){#nav{right:4px;gap:.65rem}.card{max-width:88vw}.sky-caption{white-space:normal;width:72vw}}
+/* Act III -> Act IV space-travel warp transition */
+#warp-overlay{position:fixed;inset:0;z-index:60;background:#020309;opacity:0;pointer-events:none;transition:opacity .55s ease}#warp-overlay.show{opacity:1}
+.warp-streak{position:fixed;left:50%;top:50%;height:1.4px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(228,233,255,.5) 55%,rgba(255,236,244,.95));transform-origin:left center;z-index:61;pointer-events:none;border-radius:2px;animation:warpFly var(--wdur) cubic-bezier(.13,.62,.18,1) forwards}
+@keyframes warpFly{0%{width:0;opacity:0}8%{opacity:1}100%{width:var(--wlen);opacity:0}}
+.warp-flash{position:fixed;inset:0;z-index:62;background:radial-gradient(circle at 50% 50%,rgba(255,246,250,.92),rgba(255,236,244,.15) 45%,rgba(255,236,244,0) 72%);opacity:0;pointer-events:none}
+.warp-flash.show{opacity:1;transition:opacity .18s ease}
+#warp-caption{position:fixed;left:50%;top:54%;transform:translate(-50%,-50%);z-index:63;color:rgba(255,224,236,.82);font-style:italic;letter-spacing:.16em;font-size:.82rem;text-transform:uppercase;opacity:0;transition:opacity .6s ease;text-align:center;pointer-events:none}#warp-caption.show{opacity:1}
 </style>
 </head>
 <body>
-
-<canvas id="sky"></canvas>
-<div id="aurora-bg"></div>
-<div id="end-bloom"></div>
-<div id="warp-flash"></div>
-<canvas id="aurora-cascade" style="position:fixed;inset:0;z-index:14;pointer-events:none;"></canvas>
-<div id="heart-glow"></div>
-
-<svg id="constellation-lines" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-  <g id="rose-lines">
-    <path id="rose-outer" class="curve" d="" />
-    <path id="rose-inner" class="curve inner" d="" />
-    <path class="stem" d="M50,47 Q47,64 50,76 Q52,84 50,92" />
-    <path class="leaf" d="M50,63 Q39,60 32,69 Q41,74 50,67 Z" />
-    <path class="leaf" d="M50,70 Q61,67 68,76 Q59,81 50,74 Z" />
-  </g>
-  <g id="heart-lines">
-    <path id="heart-outer" class="curve" d="" />
-    <path id="heart-inner" class="curve inner" d="" />
+<canvas id="sky"></canvas><div id="aurora"></div><div id="moon-scene"><div id="moon-haze"></div><div id="moon"></div></div><div id="reading-veil"></div><div id="final-glow"></div>
+<svg id="constellations" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <g id="rose-lines" class="group"><path id="rose-outer" d=""></path><path id="rose-inner" class="inner" d=""></path><path d="M50 47 Q47 64 50 76 Q52 84 50 92"></path><path d="M50 63 Q39 60 32 69 Q41 74 50 67 Z"></path><path d="M50 70 Q61 67 68 76 Q59 81 50 74 Z"></path></g>
+  <g id="heart-lines" class="group"><path id="heart-outer" d=""></path><path id="heart-inner" class="inner" d=""></path></g>
+  <g id="mirror-lines" class="group">
+    <path id="mirror-outer" class="outer" d=""></path>
+    <circle id="mirror-inner" class="inner" cx="50" cy="52" r="11.5"></circle>
+    <g id="mirror-spokes"></g>
+    <g id="mirror-edges"></g>
+    <g id="mirror-stars"></g>
   </g>
 </svg>
-
-<div id="rose-caption"  class="sky-caption">a second constellation begins to bloom</div>
-<div id="heart-caption" class="sky-caption">a third constellation stirs, shaped like a heart</div>
-
-<div id="stanza-panel"><div class="stanza-card" id="active-card"></div></div>
-<div id="counter">touch a star</div>
-<div id="dismiss-hint">click anywhere to continue ·</div>
-
-<div id="intro">
-  <h1>knowing the night</h1>
-  <p>a poem in stars</p>
-  <button id="begin-btn">enter the sky</button>
-</div>
-
+<div id="rose-caption" class="sky-caption"></div><div id="heart-caption" class="sky-caption"></div><div id="moon-caption" class="sky-caption">✦  ✦</div>
+<div id="stanza-panel"><div id="card" class="card"></div></div><div id="act4-transition" title="continue"></div><div id="counter">touch a star</div><div id="dismiss">click anywhere to continue ·</div>
+<div id="warp-caption">✦ crossing into the last sky ✦</div>
+<div id="intro"><div class="intro-inner"><h1>knowing the night</h1><p>a poem in stars</p><button id="begin">enter the sky</button></div></div>
+<div id="nav"><button class="nav on" data-act="1">I</button><button class="nav" data-act="2">II</button><button class="nav" data-act="3">III</button><button class="nav" data-act="4">IV</button></div>
 <script>
-// ─────────────────────────────────────────────
-//  POEM DATA
-// ─────────────────────────────────────────────
-const ACT1 = [
-  { lines:`You speak and even time leans in;\nthe world forgets its pace.\nIn this quiet stillness\neverything within me finally finds its place.`, size:5 },
-  { lines:`And when the night shows its starry skies,\nyour name becomes the breaker of silence\nbetween the stars.\nA gentle warmth I can't touch,\nyet somehow know is yours.`, size:4.5 },
-  { lines:`I live where your light still falls,\nlike a tide that loves the moon too much\nto ever learn relief.`, size:4 },
-  { lines:`For every step toward dawn reveals\na piece of what I want,\nyet every hour spent beneath this sky\ndraws me farther from myself too.`, size:4 },
-  { lines:`The seasons come at my door,\nasking me to pick a path.\nBut one path leaves your echo behind,\nand so I stand near a flame\nnot willing to depart.`, size:4.5 },
-  { lines:`knowing the night will never choose me.\n\nwhich absence breaks the heart`, size:5, final:true }
+const ACT1=[
+{lines:`You speak and even time leans in;\nthe world forgets its pace.\nIn this quiet stillness\neverything within me finally finds its place.`,size:5},
+{lines:`And when the night shows its starry skies,\nyour name becomes the breaker of silence\nbetween the stars.\nA gentle warmth I can't touch,\nyet somehow know is yours.`,size:4.5},
+{lines:`I live where your light still falls,\nlike a tide that loves the moon too much\nto ever learn relief.`,size:4},
+{lines:`For every step toward dawn reveals\na piece of what I want,\nyet every hour spent beneath this sky\ndraws me farther from myself too.`,size:4},
+{lines:`The seasons come at my door,\nasking me to pick a path.\nBut one path leaves your echo behind,\nand so I stand near a flame\nnot willing to depart.`,size:4.5},
+{lines:`knowing the night will never choose me.\n\nwhich absence breaks the heart`,size:5,final:true}
 ];
-const ACT2 = [
-  { lines:`Some people wait for sunsets;\nI find myself waiting for your words.\nA few minutes become hours,\nand somehow still feels too short.`, size:6 },
-  { lines:`That's why I'd welcome any hour that brings you\neven the ones the world is asleep for,\nwhen the sky is still deciding\nwhat it wants to be.`, size:5.5 },
-  { lines:`There is something about you—\nthe way your eyes hold light,\nthe way you smile,\nthat makes leaving a conversation hanging\nfeel a little like\npausing your favorite story before the final page.`, size:5 },
-  { lines:`And maybe that's all this is:\nthe quiet wish to know every version of you,\nthe stories you tell,\nand the ones you keep for yourself.`, size:5.5 },
-  { lines:`Every person is a universe.\n\nAll I want is to learn to live in yours.`, size:7, final:true }
+const ACT2=[
+{lines:`Some people wait for sunsets;\nI find myself waiting for your words.\nA few minutes become hours,\nand somehow still feels too short.`,size:5.2},
+{lines:`That's why I'd welcome any hour that brings you\neven the ones the world is asleep for,\nwhen the sky is still deciding\nwhat it wants to be.`,size:4.8},
+{lines:`There is something about you—\nthe way your eyes hold light,\nthe way you smile,\nthat makes leaving a conversation hanging\nfeel a little like\npausing your favorite story before the final page.`,size:4.6},
+{lines:`And maybe that's all this is:\nthe quiet wish to know every version of you,\nthe stories you tell,\nand the ones you keep for yourself.`,size:5.0},
+{lines:`Every person is a universe.\n\nAll I want is to learn to live in yours.`,size:6.4,final:true}
 ];
-const ACT3 = [
-  { lines:`It's strange\nhow some voices\nleave the room\nlong before the echo.`, size:5 },
-  { lines:`Some conversations\nfeel less like talking\nand more like finding home.`, size:5.5 },
-  { lines:`There are laughs\nthat disappear with the moment,\nand then there are the rare ones\nthat replay\nwhile the rest of the day\ntries to bloom.`, size:5 },
-  { lines:`If this you are Before Sunrise,\nmorning can wait.\nIf this you were a movie,\nthe credits can keep rolling.`, size:5.5 },
-  { lines:`Some endings\ndon't feel unfinished.\nThey just sound like\na sentence\nthat deserved\none more reply.`, size:7, final:true }
+const ACT3=[
+{lines:`It's strange\nhow some voices\nleave the room\nlong before the echo.`,size:5.0},
+{lines:`Some conversations\nfeel less like talking\nand more like finding home.`,size:5.1},
+{lines:`There are laughs\nthat disappear with the moment,\nand then there are the rare ones\nthat replay\nwhile the rest of the day\ntries to bloom.`,size:4.7},
+{lines:`If this you are Before Sunrise,\nmorning can wait.\nIf this you were a movie,\nthe credits can keep rolling.`,size:5.0},
+{lines:`Some endings\ndon't feel unfinished.\nThey just sound like\na sentence\nthat deserved\none more reply.`,size:6.4,final:true}
 ];
-
-// ─────────────────────────────────────────────
-//  STAR POSITIONS PER ACT
-// ─────────────────────────────────────────────
-const POS_ACT1 = [
-  {x:0.18,y:0.22},{x:0.72,y:0.16},{x:0.44,y:0.38},
-  {x:0.82,y:0.52},{x:0.25,y:0.62},{x:0.60,y:0.72}
+const ACT4=[
+{lines:`Somehow the stars look dimmer when you walk into view,\nas if heaven misplaced its brightest hue in you.`,size:5.3},
+{lines:`And I know I said too much,\nthen somehow said too few;\nmy thoughts keep wandering the world\njust to circle back to you.`,size:4.8},
+{lines:`I could listen to your silence,\nlet your quiet fill the room,\nfor somehow even empty words\nmake something beautiful bloom.`,size:4.7},
+{lines:`And if I could gather every shadow\nthat still lingers in your mind,\nI'd leave them where they cannot reach you,\nsomewhere far behind.`,size:4.8},
+{lines:`There are doors I wish you'd open,\nrooms I wish that I could see,\nnames I wish were spoken softly,\nplaces you'd go with me.`,size:4.9},
+{lines:`But I'd rather know you laughing\nthan the reasons you once cried,\nso I'll never pull the curtains\nfrom the places where you hide.`,size:4.8},
+{lines:`Because what good is knowing everything\nif knowing makes you ache?\nWhen my own day is heavy,\nyou still make something in me wake.`,size:5.0},
+{lines:`You are more than pretty words\ncould ever properly explain,\nmore than moonlight on the ocean,\nmore than sunlight after rain.`,size:4.9},
+{lines:`And if loving your existence\nmeans protecting what you hide,\nthen I'll happily know the surface,\nwith your happiness beside.`,size:5.1},
+{lines:`Maybe someday you'll tell me.\nMaybe someday you won't.\n\nBut if the price of keeping peace\nis leaving certain stories through,\n\nI'd still choose you.`,size:6.0,final:true}
 ];
-const POS_ACT2 = [
-  {x:0.720,y:0.300},{x:0.568,y:0.122},{x:0.322,y:0.190},
-  {x:0.322,y:0.410},{x:0.500,y:0.920}
-];
-const POS_ACT3 = [
-  {x:0.363,y:0.200},{x:0.637,y:0.200},{x:0.220,y:0.337},
-  {x:0.780,y:0.337},{x:0.500,y:0.700}
-];
-
-// ─────────────────────────────────────────────
-//  STATE  (mutated per act — one source of truth)
-// ─────────────────────────────────────────────
-let actStanzas = ACT1.slice();   // current act's stanzas
-let actEls     = [];             // current act's star DOM elements
-let revealed   = 0;             // how many clicked this act
-let animating  = false;
-let started    = false;
-let act        = 1;
-
-// ─────────────────────────────────────────────
-//  BACKGROUND CANVAS
-// ─────────────────────────────────────────────
-const canvas = document.getElementById('sky');
-const ctx    = canvas.getContext('2d');
-let W, H, bgStars = [];
-
-function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
-
-function makeBgStars(n) {
-  bgStars = [];
-  for (let i = 0; i < n; i++) bgStars.push({
-    x:Math.random()*W, y:Math.random()*H,
-    r:Math.random()*0.9+0.15, spd:Math.random()*0.012+0.003,
-    drift:(Math.random()-0.5)*0.008,
-    alpha:Math.random()*0.5+0.3, flick:Math.random()*Math.PI*2
-  });
-}
-
-function drawBg() {
-  ctx.fillStyle='#050810'; ctx.fillRect(0,0,W,H);
-  const g=ctx.createLinearGradient(W*.1,H*.1,W*.9,H*.85);
-  g.addColorStop(0,'rgba(12,18,45,0)'); g.addColorStop(.5,'rgba(14,22,55,0.18)'); g.addColorStop(1,'rgba(12,18,45,0)');
-  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
-  for(const s of bgStars){
-    s.flick+=.015;
-    ctx.globalAlpha=s.alpha*(0.75+0.25*Math.sin(s.flick));
-    ctx.fillStyle='#f0f4ff';
-    ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
-    s.y-=s.spd; s.x+=s.drift;
-    if(s.y<-2){s.y=H+2;s.x=Math.random()*W;}
-    if(s.x<0)s.x=W; if(s.x>W)s.x=0;
-  }
-  ctx.globalAlpha=1;
-}
-
-// ─────────────────────────────────────────────
-//  WARP (act 1→2)
-// ─────────────────────────────────────────────
-let warping=false, warpStart=0, warpParticles=[];
-const WARP_DUR=2200;
-
-function drawWarp(progress) {
-  const cx=W/2,cy=H/2;
-  ctx.fillStyle='rgba(5,8,16,0.55)'; ctx.fillRect(0,0,W,H);
-  const boost=Math.sin(progress*Math.PI);
-  const n=Math.floor(6+boost*14);
-  for(let i=0;i<n;i++) warpParticles.push({angle:Math.random()*Math.PI*2,dist:Math.random()*40,speed:4+Math.random()*6});
-  ctx.lineCap='round';
-  for(let i=warpParticles.length-1;i>=0;i--){
-    const p=warpParticles[i];
-    const sx=cx+Math.cos(p.angle)*p.dist, sy=cy+Math.sin(p.angle)*p.dist;
-    p.dist+=p.speed*(1+boost*7);
-    const ex=cx+Math.cos(p.angle)*p.dist, ey=cy+Math.sin(p.angle)*p.dist;
-    ctx.strokeStyle=`rgba(240,244,255,${Math.min(1,boost+0.15)})`; ctx.lineWidth=1.2;
-    ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(ex,ey); ctx.stroke();
-    if(p.dist>Math.max(W,H)) warpParticles.splice(i,1);
-  }
-}
-
-// ─────────────────────────────────────────────
-//  AURORA CASCADE (act 2→3)
-//  Phase 0 (0–800ms)   : ripple rings bloom from centre
-//  Phase 1 (800–2200ms): curtain bands fold down the sky
-//  Phase 2 (2200–3600ms): curtains settle & dissolve to starlight
-// ─────────────────────────────────────────────
-const AC  = document.getElementById('aurora-cascade');
-const actx= AC.getContext('2d');
-let auroraActive=false, auroraStart=0;
-const AURORA_TOTAL=3600, AURORA_RIPPLE=800, AURORA_FOLD_END=2200;
-let curtainBands=[];
-const AURORA_COLS=[[100,210,255],[160,110,255],[80,255,180],[255,140,200],[120,200,255],[200,100,255],[80,230,200]];
-
-function initCurtainBands(){
-  curtainBands=[];
-  for(let i=0;i<9;i++){
-    curtainBands.push({
-      xFrac:(i+0.5)/9+(Math.random()-0.5)*0.06,
-      width:0.08+Math.random()*0.06,
-      speed:0.55+Math.random()*0.35,
-      phase:Math.random()*Math.PI*2,
-      waveAmp:18+Math.random()*22,
-      waveFreq:0.008+Math.random()*0.006,
-      col:AURORA_COLS[i%AURORA_COLS.length]
-    });
-  }
-}
-
-function drawAuroraCascade(elapsed){
-  AC.width=window.innerWidth; AC.height=window.innerHeight;
-  actx.clearRect(0,0,AC.width,AC.height);
-  const aw=AC.width,ah=AC.height;
-
-  if(elapsed<AURORA_RIPPLE){
-    // PHASE 0 — ripple
-    const p=elapsed/AURORA_RIPPLE;
-    const cx=aw/2,cy=ah/2,maxR=Math.sqrt(cx*cx+cy*cy);
-    for(let r=0;r<6;r++){
-      const delay=r/6, rp=Math.max(0,(p-delay*0.4)/(1-delay*0.4));
-      if(rp<=0)continue;
-      const radius=rp*maxR*1.1, alpha=Math.sin(rp*Math.PI)*0.35;
-      const [rc,gc,bc]=AURORA_COLS[r%AURORA_COLS.length];
-      const gr=actx.createRadialGradient(cx,cy,Math.max(0,radius-60),cx,cy,radius);
-      gr.addColorStop(0,`rgba(${rc},${gc},${bc},0)`);
-      gr.addColorStop(0.6,`rgba(${rc},${gc},${bc},${alpha})`);
-      gr.addColorStop(1,`rgba(${rc},${gc},${bc},0)`);
-      actx.fillStyle=gr; actx.beginPath(); actx.arc(cx,cy,radius,0,Math.PI*2); actx.fill();
-    }
-    actx.fillStyle=`rgba(140,200,255,${p*0.08})`; actx.fillRect(0,0,aw,ah);
-
-  } else if(elapsed<AURORA_FOLD_END){
-    // PHASE 1 — fold
-    const p=(elapsed-AURORA_RIPPLE)/(AURORA_FOLD_END-AURORA_RIPPLE);
-    actx.fillStyle=`rgba(4,6,16,${p*0.45})`; actx.fillRect(0,0,aw,ah);
-    const t=elapsed*0.001;
-    for(const b of curtainBands){
-      const cx=b.xFrac*aw, bw=b.width*aw;
-      const fallH=Math.min(1,p/0.7)*ah;
-      const env=Math.sin(Math.min(1,p/0.5)*Math.PI*0.5)*(p>0.85?1-(p-0.85)/0.15:1);
-      actx.save(); actx.beginPath(); actx.moveTo(cx-bw/2,0);
-      const S=60;
-      for(let i=0;i<=S;i++){const yy=(i/S)*fallH; actx.lineTo(cx-bw/2+Math.sin(yy*b.waveFreq+t*b.speed+b.phase)*b.waveAmp*Math.min(1,p*2),yy);}
-      for(let i=S;i>=0;i--){const yy=(i/S)*fallH; actx.lineTo(cx+bw/2+Math.sin(yy*b.waveFreq+t*b.speed+b.phase+Math.PI*0.6)*b.waveAmp*Math.min(1,p*2),yy);}
-      actx.closePath();
-      const [rc,gc,bc]=b.col;
-      const gr=actx.createLinearGradient(cx,0,cx,fallH);
-      gr.addColorStop(0,`rgba(${rc},${gc},${bc},0)`);
-      gr.addColorStop(0.12,`rgba(${rc},${gc},${bc},${0.55*env})`);
-      gr.addColorStop(0.55,`rgba(${rc},${gc},${bc},${0.38*env})`);
-      gr.addColorStop(0.85,`rgba(${rc},${gc},${bc},${0.18*env})`);
-      gr.addColorStop(1,`rgba(${rc},${gc},${bc},0)`);
-      actx.fillStyle=gr; actx.fill(); actx.restore();
-    }
-    // shimmer sparks
-    if(p<0.75){
-      const n=Math.floor(18*Math.sin(p*Math.PI));
-      for(let i=0;i<n;i++){
-        const sx=Math.random()*aw,sy=Math.random()*ah*0.45,sr=0.8+Math.random()*1.4;
-        const [rc,gc,bc]=curtainBands[Math.floor(Math.random()*curtainBands.length)].col;
-        actx.globalAlpha=Math.random()*0.7*(1-Math.abs(p-0.4)/0.4);
-        actx.fillStyle=`rgb(${rc},${gc},${bc})`; actx.beginPath(); actx.arc(sx,sy,sr,0,Math.PI*2); actx.fill();
-      }
-      actx.globalAlpha=1;
-    }
-
-  } else {
-    // PHASE 2 — settle
-    const p=(elapsed-AURORA_FOLD_END)/(AURORA_TOTAL-AURORA_FOLD_END);
-    const fade=1-p; const t=elapsed*0.001;
-    for(const b of curtainBands){
-      const cx=b.xFrac*aw,bw=b.width*aw*(1+p*0.5),settleH=ah*(1-p*0.55),top=ah*p*0.55;
-      actx.save(); actx.beginPath(); actx.moveTo(cx-bw/2,top);
-      const S=40;
-      for(let i=0;i<=S;i++){const yy=top+(i/S)*settleH; actx.lineTo(cx-bw/2+Math.sin(yy*b.waveFreq*0.7+t*b.speed*0.5+b.phase)*b.waveAmp*0.6,yy);}
-      for(let i=S;i>=0;i--){const yy=top+(i/S)*settleH; actx.lineTo(cx+bw/2+Math.sin(yy*b.waveFreq*0.7+t*b.speed*0.5+b.phase+Math.PI*0.6)*b.waveAmp*0.6,yy);}
-      actx.closePath();
-      const [rc,gc,bc]=b.col;
-      const gr=actx.createLinearGradient(cx,top,cx,ah);
-      gr.addColorStop(0,`rgba(${rc},${gc},${bc},0)`);
-      gr.addColorStop(0.2,`rgba(${rc},${gc},${bc},${0.3*fade})`);
-      gr.addColorStop(0.7,`rgba(${rc},${gc},${bc},${0.15*fade})`);
-      gr.addColorStop(1,`rgba(${rc},${gc},${bc},0)`);
-      actx.fillStyle=gr; actx.fill(); actx.restore();
-    }
-    const hg=actx.createLinearGradient(0,ah*0.7,0,ah);
-    hg.addColorStop(0,`rgba(120,180,255,0)`);
-    hg.addColorStop(0.4,`rgba(140,160,255,${0.12*fade})`);
-    hg.addColorStop(1,`rgba(100,120,220,${0.22*fade})`);
-    actx.fillStyle=hg; actx.fillRect(0,ah*0.7,aw,ah*0.3);
-  }
-}
-
-// ─────────────────────────────────────────────
-//  MAIN LOOP
-// ─────────────────────────────────────────────
-function loop(ts){
-  warping ? drawWarp(Math.min(1,(ts-warpStart)/WARP_DUR)) : drawBg();
-  if(auroraActive){
-    const el=ts-auroraStart;
-    drawAuroraCascade(el);
-    if(el>=AURORA_TOTAL){ auroraActive=false; actx.clearRect(0,0,AC.width,AC.height); }
-  }
-  requestAnimationFrame(loop);
-}
-
-// ─────────────────────────────────────────────
-//  STAR BUILDING  (one clean function, called each act)
-// ─────────────────────────────────────────────
-function buildActStars(positions, stanzas, cssClass) {
-  // clear any leftover elements from prior act
-  actEls.forEach(el => el.remove());
-  actEls = [];
-  revealed = 0;
-
-  positions.forEach((pos, i) => {
-    const el = document.createElement('div');
-    el.className = `star-point ${cssClass}`;
-    el.style.setProperty('--hb', `${2.8 + i * 0.4}s`);
-    el.style.left  = `${pos.x * 100}%`;
-    el.style.top   = `${pos.y * 100}%`;
-    const sz = (i === stanzas.length - 1) ? 7 : stanzas[i].size;
-    el.style.width = el.style.height = `${sz}px`;
-    el.dataset.index = String(i);
-    el.addEventListener('click', onStarClick);
-    document.body.appendChild(el);
-    actEls.push(el);
-  });
-
-  // hint the first star
-  actEls[0].classList.add('pulse-hint');
-}
-
-// ─────────────────────────────────────────────
-//  TRANSITION TRIGGER STARS
-// ─────────────────────────────────────────────
-let redStarEl = null, auroraStarEl = null;
-
-function buildRedStar(){
-  redStarEl = document.createElement('div');
-  redStarEl.className = 'star-point red-star pulse-hint';
-  redStarEl.style.cssText = 'left:50%;top:30%;width:8px;height:8px;';
-  redStarEl.addEventListener('click', onRedStarClick);
-  document.body.appendChild(redStarEl);
-}
-
-function buildAuroraStar(){
-  auroraStarEl = document.createElement('div');
-  auroraStarEl.className = 'star-point aurora-star pulse-hint';
-  auroraStarEl.style.cssText = 'left:50%;top:45%;width:9px;height:9px;';
-  auroraStarEl.addEventListener('click', onAuroraStarClick);
-  document.body.appendChild(auroraStarEl);
-}
-
-// ─────────────────────────────────────────────
-//  GEOMETRY HELPERS
-// ─────────────────────────────────────────────
-const ROSE_CENTER={x:0.50,y:0.30}, ROSE_R=0.24, ROSE_SQ=0.85;
-const HEART_CX={x:0.50,y:0.45}, HEART_W=0.56, HEART_H=0.50;
-
-function pointsToPath(pts){
-  return pts.map((p,i)=>`${i===0?'M':'L'}${(p.x*100).toFixed(2)},${(p.y*100).toFixed(2)}`).join(' ');
-}
-
-function roseOuterPts(){
-  const pts=[];
-  for(let i=0;i<=140;i++){const t=(i/140)*Math.PI*2,r=ROSE_R*(0.5+0.5*Math.cos(5*t));pts.push({x:ROSE_CENTER.x+r*Math.cos(t),y:ROSE_CENTER.y+r*Math.sin(t)*ROSE_SQ});}
-  return pts;
-}
-function roseInnerPts(){
-  const pts=[];
-  for(let i=0;i<=60;i++){const t=i/60,a=t*2.6*Math.PI*2,r=0.115*(1-t)+0.014;pts.push({x:ROSE_CENTER.x+r*Math.cos(a),y:ROSE_CENTER.y+r*Math.sin(a)*ROSE_SQ});}
-  return pts;
-}
-function heartRaw(n){
-  const raw=[];
-  for(let i=0;i<=n;i++){const t=(i/n)*Math.PI*2;raw.push({x:16*Math.pow(Math.sin(t),3),y:13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t)});}
-  return raw;
-}
-function normalizeHeart(raw,w,h){
-  const xs=raw.map(p=>p.x),ys=raw.map(p=>p.y);
-  const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
-  return raw.map(p=>({x:HEART_CX.x+((p.x-x0)/(x1-x0)-0.5)*w,y:HEART_CX.y-((p.y-y0)/(y1-y0)-0.5)*h}));
-}
-function heartOuterPts(){ return normalizeHeart(heartRaw(140),HEART_W,HEART_H); }
-function heartInnerPts(){ return normalizeHeart(heartRaw(110),HEART_W*0.58,HEART_H*0.58); }
-
-let dustEls = [];
-function buildDust(outerPts,innerPts,cls,step1,step2){
-  dustEls.forEach(el=>el.remove()); dustEls=[];
-  const positions=[];
-  for(let i=0;i<outerPts.length;i+=step1) positions.push(outerPts[i]);
-  for(let i=0;i<innerPts.length;i+=step2) positions.push(innerPts[i]);
-  positions.forEach((p,i)=>{
-    const el=document.createElement('div');
-    el.className=cls;
-    el.style.left=`${p.x*100}%`; el.style.top=`${p.y*100}%`;
-    const sz=1+Math.random()*1.6; el.style.width=el.style.height=`${sz}px`;
-    el.style.transitionDelay=`${(i%14)*80}ms`;
-    document.body.appendChild(el); dustEls.push(el);
-  });
-}
-
-// ─────────────────────────────────────────────
-//  AUDIO
-// ─────────────────────────────────────────────
-let audioCtx, masterGain;
-
-function startAudio(){
-  if(audioCtx)return;
-  audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-  masterGain=audioCtx.createGain();
-  masterGain.gain.setValueAtTime(0,audioCtx.currentTime);
-  masterGain.gain.linearRampToValueAtTime(0.22,audioCtx.currentTime+4);
-  masterGain.connect(audioCtx.destination);
-  const bs=audioCtx.sampleRate*4, buf=audioCtx.createBuffer(1,bs,audioCtx.sampleRate),d=buf.getChannelData(0);
-  for(let i=0;i<bs;i++)d[i]=Math.random()*2-1;
-  const ns=audioCtx.createBufferSource(); ns.buffer=buf; ns.loop=true;
-  const nf=audioCtx.createBiquadFilter(); nf.type='bandpass'; nf.frequency.value=320; nf.Q.value=0.5;
-  const ng=audioCtx.createGain(); ng.gain.value=0.035;
-  ns.connect(nf);nf.connect(ng);ng.connect(masterGain);ns.start();
-  [[65.4,.04],[98,.025],[155.6,.015],[207.7,.01]].forEach(([freq,gain])=>{
-    const o=audioCtx.createOscillator(),g=audioCtx.createGain();
-    o.type='sine';o.frequency.value=freq;g.gain.value=gain;
-    const lfo=audioCtx.createOscillator(),lg=audioCtx.createGain();
-    lfo.frequency.value=0.07+Math.random()*.04;lg.gain.value=gain*.3;
-    lfo.connect(lg);lg.connect(g.gain);lfo.start();
-    o.connect(g);g.connect(masterGain);o.start();
-  });
-}
-
-function chime(){
-  if(!audioCtx)return;
-  const notes=[523.25,659.25,783.99,1046.5],n=notes[Math.floor(Math.random()*notes.length)];
-  const o=audioCtx.createOscillator(),g=audioCtx.createGain();
-  o.type='sine';o.frequency.value=n;
-  g.gain.setValueAtTime(.12,audioCtx.currentTime);
-  g.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+1.8);
-  o.connect(g);g.connect(masterGain);o.start();o.stop(audioCtx.currentTime+1.8);
-}
-
-function finalChime(){
-  if(!audioCtx)return;
-  [261.63,329.63,392,523.25].forEach((freq,i)=>setTimeout(()=>{
-    const t=audioCtx.currentTime,o=audioCtx.createOscillator(),g=audioCtx.createGain();
-    o.type='sine';o.frequency.value=freq;
-    g.gain.setValueAtTime(.09,t);g.gain.exponentialRampToValueAtTime(.0001,t+3.5);
-    o.connect(g);g.connect(masterGain);o.start(t);o.stop(t+3.5);
-  },i*320));
-}
-
-function warpSound(){
-  if(!audioCtx)return;
-  const bs=audioCtx.sampleRate*1.6,buf=audioCtx.createBuffer(1,bs,audioCtx.sampleRate),d=buf.getChannelData(0);
-  for(let i=0;i<bs;i++)d[i]=Math.random()*2-1;
-  const src=audioCtx.createBufferSource();src.buffer=buf;
-  const f=audioCtx.createBiquadFilter();f.type='bandpass';
-  f.frequency.setValueAtTime(200,audioCtx.currentTime);
-  f.frequency.exponentialRampToValueAtTime(2200,audioCtx.currentTime+.9);
-  f.frequency.exponentialRampToValueAtTime(120,audioCtx.currentTime+1.6);
-  const g=audioCtx.createGain();
-  g.gain.setValueAtTime(.0001,audioCtx.currentTime);
-  g.gain.exponentialRampToValueAtTime(.25,audioCtx.currentTime+.5);
-  g.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+1.6);
-  src.connect(f);f.connect(g);g.connect(masterGain);src.start();src.stop(audioCtx.currentTime+1.6);
-}
-
-function auroraSound(){
-  if(!audioCtx)return;
-  const now=audioCtx.currentTime;
-  [220,277.18,329.63,415.30,493.88].forEach((freq,i)=>setTimeout(()=>{
-    const t=audioCtx.currentTime,o=audioCtx.createOscillator(),g=audioCtx.createGain();
-    o.type='sine';o.frequency.setValueAtTime(freq,t);o.frequency.linearRampToValueAtTime(freq*1.003,t+2.2);
-    g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(.045-i*.006,t+.9);
-    g.gain.linearRampToValueAtTime(.028,t+2);g.gain.exponentialRampToValueAtTime(.0001,t+3.6);
-    o.connect(g);g.connect(masterGain);o.start(t);o.stop(t+3.6);
-  },i*180));
-  const bs=audioCtx.sampleRate*3.2,buf=audioCtx.createBuffer(1,bs,audioCtx.sampleRate),d=buf.getChannelData(0);
-  for(let i=0;i<bs;i++)d[i]=Math.random()*2-1;
-  const src=audioCtx.createBufferSource();src.buffer=buf;
-  const f=audioCtx.createBiquadFilter();f.type='highpass';
-  f.frequency.setValueAtTime(1800,now);f.frequency.linearRampToValueAtTime(600,now+1.8);f.frequency.linearRampToValueAtTime(2400,now+3.2);
-  const g=audioCtx.createGain();
-  g.gain.setValueAtTime(.0001,now);g.gain.linearRampToValueAtTime(.07,now+.6);
-  g.gain.linearRampToValueAtTime(.04,now+2);g.gain.exponentialRampToValueAtTime(.0001,now+3.2);
-  src.connect(f);f.connect(g);g.connect(masterGain);src.start(now);src.stop(now+3.2);
-  setTimeout(()=>{
-    if(!audioCtx)return;
-    const t=audioCtx.currentTime,o=audioCtx.createOscillator(),g=audioCtx.createGain();
-    o.type='sine';o.frequency.value=1760;
-    g.gain.setValueAtTime(.06,t);g.gain.exponentialRampToValueAtTime(.0001,t+2.4);
-    o.connect(g);g.connect(masterGain);o.start(t);o.stop(t+2.4);
-  },780);
-}
-
-// ─────────────────────────────────────────────
-//  SHOOTING STAR
-// ─────────────────────────────────────────────
-function shootingStar(){
-  const el=document.createElement('div');
-  el.className='shoot';
-  el.style.left=(Math.random()*W*.6+W*.1)+'px';
-  el.style.top=(Math.random()*H*.4+H*.05)+'px';
-  el.style.transform=`rotate(${15+Math.random()*20}deg)`;
-  document.body.appendChild(el);
-  setTimeout(()=>el.remove(),900);
-}
-setInterval(()=>{ if(started&&Math.random()<.35)shootingStar(); },6000);
-
-// ─────────────────────────────────────────────
-//  TYPEWRITER
-// ─────────────────────────────────────────────
-function typewrite(el,text,done){
-  el.innerHTML='';
-  const p=document.createElement('p'); el.appendChild(p);
-  text.split('').forEach(ch=>{
-    const s=document.createElement('span'); s.className='char';
-    s.textContent=ch==='\n'?'\n':ch; if(ch==='\n')s.style.display='block';
-    p.appendChild(s);
-  });
-  const spans=p.querySelectorAll('.char'); let i=0;
-  const speed=Math.max(18,900/spans.length);
-  (function tick(){ if(i<spans.length){spans[i++].style.opacity='1';setTimeout(tick,speed);}else if(done)done(); })();
-}
-
-// ─────────────────────────────────────────────
-//  STANZA REVEAL
-// ─────────────────────────────────────────────
-const card=document.getElementById('active-card');
-const counter=document.getElementById('counter');
-const dismissHint=document.getElementById('dismiss-hint');
-let dismissTimer=null, actFinished=false;
-
-function autoDismissDelay(text){ const w=text.trim().split(/\s+/).length; return Math.max(4800,Math.min(11000,2200+w*280)); }
-
-function dismissCard(){
-  clearTimeout(dismissTimer);
-  if(!card.classList.contains('visible'))return;
-  card.classList.remove('visible');
-  if(!actFinished){
-    counter.textContent='find the next star  ✦';
-    dismissHint.classList.remove('visible');
-  } else {
-    counter.style.opacity='0';
-    dismissHint.classList.remove('visible');
-  }
-}
-
-function showStanza(index){
-  if(animating)return;
+const POS1=[{x:.18,y:.22},{x:.72,y:.16},{x:.44,y:.38},{x:.82,y:.52},{x:.25,y:.62},{x:.60,y:.72}];
+const POS2=[{x:.72,y:.30},{x:.568,y:.122},{x:.322,y:.19},{x:.322,y:.41},{x:.50,y:.82}];
+const POS3=[{x:.363,y:.20},{x:.637,y:.20},{x:.22,y:.337},{x:.78,y:.337},{x:.50,y:.70}];
+let act=1,started=false,stanzas=ACT1.slice(),stars=[],revealed=0,animating=false,finished=false,dismissTimer=null;
+const card=document.getElementById('card'),counter=document.getElementById('counter'),dismiss=document.getElementById('dismiss');
+let ctx=document.getElementById('sky').getContext('2d'),W=0,H=0,bg=[];
+function resize(){W=document.getElementById('sky').width=innerWidth;H=document.getElementById('sky').height=innerHeight}
+function seed(){bg=[];for(let i=0;i<Math.floor(W*H/4200);i++)bg.push({x:Math.random()*W,y:Math.random()*H,r:.2+Math.random()*.8,a:.25+Math.random()*.55,t:Math.random()*6.28})}
+function draw(){ctx.fillStyle='#04060b';ctx.fillRect(0,0,W,H);for(const s of bg){s.t+=.01;ctx.globalAlpha=s.a*(.78+.22*Math.sin(s.t));ctx.fillStyle='#eef3ff';ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();s.y-=.006;if(s.y<0)s.y=H}ctx.globalAlpha=1}
+function raf(ts){draw();requestAnimationFrame(raf)}
+function pointsPath(points){return points.map((p,i)=>(i?'L':'M')+p.x.toFixed(2)+','+p.y.toFixed(2)).join(' ')}
+function rosePts(inner=false){let out=[],n=inner?60:140,r0=inner?.115:.24;for(let i=0;i<=n;i++){let t=i/n*Math.PI*2,r=inner?(r0*(1-i/n)+.014):(r0*(.5+.5*Math.cos(5*t)));out.push({x:.5+r*Math.cos(t),y:.3+r*Math.sin(t)*.85})}return out}
+function heartRaw(n){let a=[];for(let i=0;i<=n;i++){let t=i/n*Math.PI*2;a.push({x:16*Math.sin(t)**3,y:13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t)})}return a}
+function heartPts(scale=1){let r=heartRaw(140),xs=r.map(p=>p.x),ys=r.map(p=>p.y),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);return r.map(p=>({x:.5+((((p.x-x0)/(x1-x0))-.5)*.56*scale),y:.45-((((p.y-y0)/(y1-y0))-.5)*.50*scale)}))}
+function setActGroup(name){document.querySelectorAll('.group').forEach(g=>g.classList.remove('active'));if(name)document.getElementById(name).classList.add('active')}
+function clearStarDOM(){document.querySelectorAll('.star-point,.mirror-dot').forEach(e=>e.remove());stars=[];document.getElementById('act4-transition')?.classList.remove('show')}
+function makeStars(pos,arr,cls=''){clearStarDOM();revealed=0;pos.forEach((p,i)=>{let e=document.createElement('div');e.className='star-point'+(cls?' '+cls:'');e.style.left=p.x*100+'%';e.style.top=p.y*100+'%';let sz=i===arr.length-1?7:Math.max(4,arr[i].size||5);e.style.width=e.style.height=sz+'px';e.dataset.i=i;e.onclick=clickStar;document.body.appendChild(e);stars.push(e)});if(stars[0])stars[0].classList.add('hint')}
+function clickStar(e){let i=+e.currentTarget.dataset.i;if(i!==revealed||animating)return;revealed++;e.currentTarget.classList.remove('hint');e.currentTarget.style.boxShadow='0 0 12px 4px rgba(255,186,207,.75)';showStanza(i);if(i+1<stars.length)setTimeout(()=>stars[i+1]?.classList.add('hint'),700);}
+function showStanza(i){
   animating=true;
   clearTimeout(dismissTimer);
-  const s=actStanzas[index];
-  s.final ? card.classList.add('final') : card.classList.remove('final');
-  card.classList.remove('visible');
+  let s=stanzas[i];
+  card.classList.toggle('final',!!s.final);
+  card.classList.remove('show');
   setTimeout(()=>{
-    typewrite(card,s.lines,()=>{
-      animating=false;
-      if(!s.final){
-        counter.textContent=`✦ ${index+1} of ${actStanzas.length-1} · find the next star`;
-        dismissHint.classList.add('visible');
-      } else {
-        counter.style.opacity='0';
-        dismissHint.classList.remove('visible');
-      }
-      dismissTimer=setTimeout(dismissCard,autoDismissDelay(s.lines));
+    card.innerHTML='';
+    let p=document.createElement('p');
+    s.lines.split('').forEach(ch=>{
+      let span=document.createElement('span');
+      span.className='char';
+      span.textContent=ch;
+      if(ch==='\n')span.style.display='block';
+      p.appendChild(span);
     });
-    card.classList.add('visible');
-  },400);
-  if(!s.final) counter.textContent='·';
+    card.appendChild(p);
+    card.classList.add('show');
+    let chars=[...p.children],k=0;
+    let tick=()=>{
+      if(k<chars.length){
+        chars[k++].classList.add('on');
+        setTimeout(tick,Math.max(15,900/chars.length));
+      }else{
+        animating=false;
+        if(s.final){
+          finished=true;
+          counter.style.opacity=0;
+          dismiss.classList.remove('show');
+          /* The completed act gets a clear continuation star. */
+          setTimeout(()=>{
+            const transition=document.getElementById('act4-transition');
+            if(act<4){
+              transition.classList.add('show');
+            }
+          },700);
+        }else{
+          counter.textContent=`✦ ${i+1} of ${stanzas.length-1} · find the next star`;
+          dismiss.classList.add('show');
+        }
+        dismissTimer=setTimeout(
+          hideCard,
+          Math.max(4500,Math.min(11000,2200+s.lines.split(/\s+/).length*250))
+        );
+      }
+    };
+    tick();
+  },330);
 }
-
-// ─────────────────────────────────────────────
-//  STAR CLICK HANDLER
-// ─────────────────────────────────────────────
-function onStarClick(e){
-  const i=parseInt(e.currentTarget.dataset.index);
-  if(i!==revealed)return;
-  chime();
-  e.currentTarget.classList.remove('pulse-hint');
-  e.currentTarget.classList.add('active');
-  e.currentTarget.removeEventListener('click',onStarClick);
-
+function hideCard(){clearTimeout(dismissTimer);card.classList.remove('show');dismiss.classList.remove('show');if(finished)counter.style.opacity=0}
+function mirrorPoints(){
+  const n=16;
+  const cx=50;
+  const cy=52;
+  const rx=45.2;
+  const ry=43.0;
+  const valleyRx=40.8;
+  const valleyRy=38.9;
+  const peaks=[],vals=[];
+  for(let i=0;i<n;i++){
+    const a=-Math.PI/2+i*(Math.PI*2/n);
+    const v=a+Math.PI/n;
+    peaks.push({
+      x:cx+Math.cos(a)*rx,
+      y:cy+Math.sin(a)*ry
+    });
+    vals.push({
+      x:cx+Math.cos(v)*valleyRx,
+      y:cy+Math.sin(v)*valleyRy
+    });
+  }
+  /* inner now matches the drawn inner circle (cx 50, cy 52, r 11.5) exactly, so every spoke touches its rim. */
+  return {peaks,vals,inner:11.5,cx,cy};
+}
+function buildMirror(){
+  const {peaks,vals,inner,cx,cy}=mirrorPoints();
+  const outer=document.getElementById('mirror-outer');
+  const g=document.getElementById('mirror-spokes');
+  const eg=document.getElementById('mirror-edges');
+  const sg=document.getElementById('mirror-stars');
+  let d=`M ${peaks[0].x.toFixed(2)} ${peaks[0].y.toFixed(2)}`;
+  for(let i=0;i<peaks.length;i++){
+    const v=vals[i],next=peaks[(i+1)%peaks.length];
+    d+=` Q ${v.x.toFixed(2)} ${v.y.toFixed(2)} ${next.x.toFixed(2)} ${next.y.toFixed(2)}`;
+  }
+  outer.setAttribute('d',d+' Z');
+  g.innerHTML='';
+  eg.innerHTML='';
+  sg.innerHTML='';
+  /* EXACTLY 16 radial lines, each starting flush on the inner circle's rim */
+  for(let i=0;i<16;i++){
+    const a=-Math.PI/2+i*Math.PI*2/16;
+    const ix=cx+Math.cos(a)*inner;
+    const iy=cy+Math.sin(a)*inner;
+    const p=peaks[i];
+    const line=document.createElementNS('http://www.w3.org/2000/svg','path');
+    line.setAttribute('d',`M ${ix.toFixed(2)} ${iy.toFixed(2)} L ${p.x.toFixed(2)} ${p.y.toFixed(2)}`);
+    line.setAttribute('class',i%4===0?'spoke strong':'spoke');
+    g.appendChild(line);
+    const star=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    star.setAttribute('cx',p.x);
+    star.setAttribute('cy',p.y);
+    star.setAttribute('r',i%4===0?'.92':'.56');
+    star.setAttribute('class',i%4===0?'mirror-star':'mirror-star');
+    sg.appendChild(star);
+  }
+  /* Only the wavy perimeter, no web of extra geometry. */
+  for(let i=0;i<16;i++){
+    const a=peaks[i],b=peaks[(i+1)%16];
+    const line=document.createElementNS('http://www.w3.org/2000/svg','path');
+    line.setAttribute('d',`M ${a.x.toFixed(2)} ${a.y.toFixed(2)} L ${b.x.toFixed(2)} ${b.y.toFixed(2)}`);
+    line.setAttribute('class','edge');
+    eg.appendChild(line);
+  }
+}
+function getMirrorClickPositions(){
+  const {peaks}=mirrorPoints();
+  const ids=[0,1,3,5,7,8,10,12,14,15];
+  return ids.map(i=>({x:peaks[i].x/100,y:peaks[i].y/100}));
+}
+function addMirrorDots(){
+  document.querySelectorAll('.mirror-dot').forEach(e=>e.remove());
+  getMirrorClickPositions().forEach((p,i)=>{
+    const d=document.createElement('div');
+    d.className='mirror-dot';
+    d.style.left=p.x*100+'%';
+    d.style.top=p.y*100+'%';
+    d.dataset.i=i;
+    d.setAttribute('aria-label',`Act 4 star ${i+1}`);
+    d.onclick=clickMirrorDot;
+    document.body.appendChild(d);
+    if(i===0)d.classList.add('hint');
+  });
+}
+function clickMirrorDot(e){
+  const i=+e.currentTarget.dataset.i;
+  if(i!==revealed||animating)return;
+  e.currentTarget.classList.add('done');
+  e.currentTarget.classList.remove('hint');
   revealed++;
-
-  // hint next star if there is one
-  if(i+1<actEls.length){
-    setTimeout(()=>actEls[i+1].classList.add('pulse-hint'),1200);
-  }
-
   showStanza(i);
-
-  // last stanza of this act?
-  if(i===actStanzas.length-1){
-    actFinished=true;
-    finalChime();
-    document.getElementById('end-bloom').classList.add('lit');
-    setTimeout(shootingStar,1000);
-    setTimeout(shootingStar,2200);
-    setTimeout(shootingStar,3800);
-    // spawn the appropriate transition star after the card auto-dismisses
-    const delay=autoDismissDelay(actStanzas[i].lines)+1600;
-    if(act===1) setTimeout(buildRedStar,  delay);
-    if(act===2) setTimeout(buildAuroraStar,delay);
+  const dots=[...document.querySelectorAll('.mirror-dot')];
+  dots[i+1]?.classList.add('hint');
+}
+function beginAct4(){
+  act=4;
+  stanzas=ACT4.slice();
+  finished=false;
+  revealed=0;
+  document.body.classList.add('act4');
+  document.getElementById('moon-scene').classList.add('show');
+  document.getElementById('reading-veil').classList.add('show');
+  document.getElementById('final-glow').classList.remove('show');
+  document.getElementById('act4-transition').classList.remove('show');
+  setActGroup('mirror-lines');
+  buildMirror();
+  addMirrorDots();
+  counter.style.opacity=1;
+  counter.textContent='touch a star  ✦';
+  showCaption('moon-caption');
+}
+function beginAct1(){act=1;stanzas=ACT1.slice();finished=false;revealed=0;document.body.classList.remove('act4');document.getElementById('act4-transition').classList.remove('show');document.getElementById('moon-scene').classList.remove('show');document.getElementById('reading-veil').classList.remove('show');document.getElementById('final-glow').classList.remove('show');buildMirror();setActGroup(null);makeStars(POS1,ACT1);counter.style.opacity=1;counter.textContent='touch a star  ✦'}
+function beginAct2(){act=2;stanzas=ACT2.slice();finished=false;revealed=0;document.body.classList.remove('act4');document.getElementById('act4-transition').classList.remove('show');document.getElementById('moon-scene').classList.remove('show');document.getElementById('reading-veil').classList.remove('show');setActGroup('rose-lines');let o=rosePts(),inn=rosePts(true);document.getElementById('rose-outer').setAttribute('d',pointsPath(o)+' Z');document.getElementById('rose-inner').setAttribute('d',pointsPath(inn));makeStars(POS2,ACT2,'rose-star');counter.style.opacity=1;counter.textContent='touch a star  ✦';showCaption('rose-caption')}
+function beginAct3(){act=3;stanzas=ACT3.slice();finished=false;revealed=0;document.body.classList.remove('act4');document.getElementById('act4-transition').classList.remove('show');document.getElementById('moon-scene').classList.remove('show');document.getElementById('reading-veil').classList.remove('show');setActGroup('heart-lines');let o=heartPts(1),inn=heartPts(.58);document.getElementById('heart-outer').setAttribute('d',pointsPath(o)+' Z');document.getElementById('heart-inner').setAttribute('d',pointsPath(inn));makeStars(POS3,ACT3,'heart-star');counter.style.opacity=1;counter.textContent='touch a star  ✦';showCaption('heart-caption')}
+function pointsPath(p){return p.map((x,i)=>(i?'L':'M')+(x.x*100).toFixed(2)+','+(x.y*100).toFixed(2)).join(' ')}
+function showCaption(id){document.querySelectorAll('.sky-caption').forEach(e=>e.classList.remove('show'));let e=document.getElementById(id);if(e){e.classList.add('show');setTimeout(()=>e.classList.remove('show'),3200)}}
+function finale(){document.getElementById('final-glow').classList.add('show');let n=55;for(let i=0;i<n;i++){let p=document.createElement('div');p.className='burst';p.style.setProperty('--a',Math.random()*360+'deg');p.style.setProperty('--d',90+Math.random()*Math.min(innerWidth,innerHeight)*.42+'px');p.style.setProperty('--dur',1.2+Math.random()*1.8+'s');document.body.appendChild(p);setTimeout(()=>p.remove(),3600)}}
+/* Space-travel warp transition used specifically when entering Act IV: overlay dims to near-black, streaks fly outward from center like passing stars, a brief white flash marks arrival, then Act IV's mirror sky is revealed underneath as the overlay clears. */
+function playWarpTransition(cb){
+  const overlay=document.createElement('div');
+  overlay.id='warp-overlay';
+  document.body.appendChild(overlay);
+  const cap=document.getElementById('warp-caption');
+  requestAnimationFrame(()=>{overlay.classList.add('show');cap.classList.add('show')});
+  setTimeout(()=>{
+    const n=100;
+    for(let i=0;i<n;i++){
+      const s=document.createElement('div');
+      s.className='warp-streak';
+      const angle=Math.random()*360;
+      const len=(45+Math.random()*75).toFixed(1)+'vmax';
+      const dur=(.55+Math.random()*.55).toFixed(2)+'s';
+      s.style.setProperty('--wlen',len);
+      s.style.setProperty('--wdur',dur);
+      s.style.transform=`rotate(${angle}deg)`;
+      document.body.appendChild(s);
+      setTimeout(()=>s.remove(),1300);
+    }
+  },140);
+  setTimeout(()=>{
+    cb();
+  },760);
+  setTimeout(()=>{
+    const flash=document.createElement('div');
+    flash.className='warp-flash';
+    document.body.appendChild(flash);
+    requestAnimationFrame(()=>flash.classList.add('show'));
+    setTimeout(()=>{flash.classList.remove('show');setTimeout(()=>flash.remove(),250)},170);
+  },780);
+  setTimeout(()=>{
+    cap.classList.remove('show');
+    overlay.classList.remove('show');
+    setTimeout(()=>overlay.remove(),650);
+  },1000);
+}
+function continueToNextAct(){
+  const transition=document.getElementById('act4-transition');
+  transition.classList.remove('show');
+  if(act===1){
+    beginAct2();
+  }else if(act===2){
+    beginAct3();
+  }else if(act===3){
+    playWarpTransition(beginAct4);
+  }else{
+    /* Act 4 is the end. Let the mirror bloom instead. */
+    finale();
   }
 }
-
-// ─────────────────────────────────────────────
-//  ACT 1 → 2  (warp)
-// ─────────────────────────────────────────────
-function onRedStarClick(e){
-  e.currentTarget.removeEventListener('click',onRedStarClick);
-  e.currentTarget.classList.remove('pulse-hint'); e.currentTarget.classList.add('active');
-  warpSound();
-  counter.style.opacity='0'; dismissHint.classList.remove('visible');
-  setTimeout(()=>{ if(redStarEl)redStarEl.remove(); },500);
-
-  warping=true; warpStart=performance.now(); warpParticles=[];
-  document.body.classList.add('warping');
-  document.getElementById('end-bloom').classList.remove('lit');
-
-  actEls.forEach(el=>{el.style.transition='opacity 0.9s ease';el.style.opacity='0';});
-  setTimeout(()=>{actEls.forEach(el=>el.remove());actEls=[];},900);
-
-  setTimeout(()=>{
-    warping=false; document.body.classList.remove('warping');
-    beginRoseAct();
-  },WARP_DUR);
-}
-
-function beginRoseAct(){
-  act=2; actFinished=false; actStanzas=ACT2.slice();
-  const outerPts=roseOuterPts(), innerPts=roseInnerPts();
-  document.getElementById('rose-outer').setAttribute('d',pointsToPath(outerPts)+' Z');
-  document.getElementById('rose-inner').setAttribute('d',pointsToPath(innerPts));
-  buildDust(outerPts,innerPts,'rose-dust',6,5);
-  document.getElementById('rose-lines').classList.add('visible');
-  setTimeout(()=>dustEls.forEach(el=>el.classList.add('visible')),200);
-  const cap=document.getElementById('rose-caption');
-  cap.classList.add('visible'); setTimeout(()=>cap.classList.remove('visible'),3600);
-  setTimeout(()=>{
-    buildActStars(POS_ACT2, ACT2, 'rose-star');
-    counter.style.opacity='1'; counter.textContent='touch a star  ✦';
-  },1800);
-}
-
-// ─────────────────────────────────────────────
-//  ACT 2 → 3  (aurora cascade)
-// ─────────────────────────────────────────────
-function onAuroraStarClick(e){
-  e.currentTarget.removeEventListener('click',onAuroraStarClick);
-  e.currentTarget.classList.remove('pulse-hint'); e.currentTarget.classList.add('active');
-  auroraSound();
-  counter.style.opacity='0'; dismissHint.classList.remove('visible');
-  setTimeout(()=>{ if(auroraStarEl)auroraStarEl.remove(); },500);
-
-  auroraActive=true; auroraStart=performance.now(); initCurtainBands();
-  document.getElementById('end-bloom').classList.remove('lit');
-
-  // rose constellation fades
-  document.getElementById('rose-lines').classList.remove('visible');
-  dustEls.forEach(el=>{el.style.transition='opacity 0.8s ease';el.classList.remove('visible');});
-  setTimeout(()=>{dustEls.forEach(el=>el.remove());dustEls=[];},900);
-
-  actEls.forEach(el=>{el.style.transition='opacity 1.2s ease';el.style.opacity='0';});
-  setTimeout(()=>{actEls.forEach(el=>el.remove());actEls=[];},1200);
-
-  setTimeout(beginHeartAct, AURORA_TOTAL-800);
-}
-
-function beginHeartAct(){
-  act=3; actFinished=false; actStanzas=ACT3.slice();
-  const outerPts=heartOuterPts(), innerPts=heartInnerPts();
-  document.getElementById('heart-outer').setAttribute('d',pointsToPath(outerPts)+' Z');
-  document.getElementById('heart-inner').setAttribute('d',pointsToPath(innerPts)+' Z');
-  buildDust(outerPts,innerPts,'heart-dust',5,6);
-  document.getElementById('heart-lines').classList.add('visible');
-  document.getElementById('heart-glow').classList.add('visible');
-  setTimeout(()=>dustEls.forEach(el=>el.classList.add('visible')),250);
-  const cap=document.getElementById('heart-caption');
-  cap.classList.add('visible'); setTimeout(()=>cap.classList.remove('visible'),3800);
-  setTimeout(()=>{
-    buildActStars(POS_ACT3, ACT3, 'heart-star');
-    counter.style.opacity='1'; counter.textContent='touch a star  ✦';
-  },2000);
-}
-
-// ─────────────────────────────────────────────
-//  GLOBAL CLICK — dismiss card
-// ─────────────────────────────────────────────
-document.addEventListener('click',(e)=>{
-  if(e.target.closest('.star-point')||e.target.closest('#intro')||e.target.closest('#begin-btn'))return;
-  if(!animating&&card.classList.contains('visible'))dismissCard();
-});
-
-// ─────────────────────────────────────────────
-//  INTRO
-// ─────────────────────────────────────────────
-document.getElementById('begin-btn').addEventListener('click',()=>{
-  startAudio(); started=true;
-  document.getElementById('intro').classList.add('hidden');
-  setTimeout(()=>{
-    document.getElementById('intro').remove();
-    counter.textContent='touch a star  ✦';
-  },1300);
-  shootingStar();
-  // build act 1 stars (first star is already hinted inside buildActStars)
-  buildActStars(POS_ACT1, ACT1, '');
-});
-
-// ─────────────────────────────────────────────
-//  INIT
-// ─────────────────────────────────────────────
-window.addEventListener('resize',()=>{ resize(); makeBgStars(Math.floor(W*H/4000)); });
-resize(); makeBgStars(Math.floor(W*H/4000)); loop(0);
+document.getElementById('act4-transition').onclick=continueToNextAct;
+function jump(n){if(!started){started=true;document.getElementById('intro').style.opacity=0;setTimeout(()=>document.getElementById('intro').remove(),900)}hideCard();if(n===1)beginAct1();if(n===2)beginAct2();if(n===3)beginAct3();if(n===4)beginAct4();document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('on',+b.dataset.act===n))}
+document.getElementById('begin').onclick=()=>jump(1);document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>jump(+b.dataset.act));document.addEventListener('click',e=>{if(e.target.closest('.star-point,.mirror-dot,#nav,#intro'))return;if(card.classList.contains('show'))hideCard()});window.addEventListener('resize',()=>{resize();seed();if(act===4){buildMirror();addMirrorDots()}});resize();seed();buildMirror();requestAnimationFrame(raf);
 </script>
 </body>
 </html>
