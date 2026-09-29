@@ -20,6 +20,7 @@ body.act4 .card.final p{color:#ffe3ee;text-shadow:0 2px 6px #000,0 0 16px rgba(0
 .sky-caption{position:fixed;top:9%;left:50%;transform:translateX(-50%);z-index:31;opacity:0;transition:opacity 1s;color:rgba(240,210,150,.65);font-style:italic;letter-spacing:.1em;font-size:.95rem;text-align:center;white-space:nowrap}.sky-caption.show{opacity:1}
 #constellations{position:fixed;inset:0;width:100%;height:100%;z-index:8;pointer-events:none}.group{opacity:0;transition:opacity 1.2s}.group.active{opacity:1}.group path{fill:none;vector-effect:non-scaling-stroke}
 #rose-lines path{stroke:rgba(224,116,140,.52);stroke-width:1.05}#rose-lines .inner{stroke:rgba(240,160,180,.38);stroke-width:.82}#heart-lines path{stroke:rgba(255,92,119,.55);stroke-width:1.08}#heart-lines .inner{stroke:rgba(255,150,170,.38);stroke-width:.82}
+#cat-lines .outer{fill:none;stroke:#c9bdf5;stroke-width:1.15;filter:drop-shadow(0 0 5px rgba(201,189,245,.5));vector-effect:non-scaling-stroke}#cat-lines .inner{fill:none;stroke:rgba(219,210,252,.42);stroke-width:.8}#cat-lines .accent{stroke:rgba(224,218,250,.42);stroke-width:.66}#cat-lines .accent.tail{stroke:rgba(212,201,250,.72);stroke-width:1.05}#cat-stars circle{fill:#e6ddff;filter:drop-shadow(0 0 5px rgba(201,189,245,.85));vector-effect:non-scaling-stroke}
 /* Act 4: one clean mirror, 16 lines total from inner rim to wavy outer edge */
 #mirror-lines .outer{fill:none;stroke:var(--pink);stroke-width:1.55;filter:drop-shadow(0 0 5px rgba(245,126,163,.58));vector-effect:non-scaling-stroke}#mirror-lines .inner{fill:rgba(10,5,10,.20);stroke:var(--pink2);stroke-width:1.22;vector-effect:non-scaling-stroke}#mirror-lines .spoke{stroke:rgba(247,166,190,.84);stroke-width:1.02;vector-effect:non-scaling-stroke}#mirror-lines .spoke.strong{stroke:rgba(255,214,228,.96);stroke-width:1.24}#mirror-lines .edge{stroke:rgba(249,162,190,.76);stroke-width:1.02;vector-effect:non-scaling-stroke}
 #mirror-stars circle{fill:var(--pink2);filter:drop-shadow(0 0 5px rgba(255,181,205,.92));vector-effect:non-scaling-stroke}
@@ -39,7 +40,7 @@ body.act4 .card.final p{color:#ffe3ee;text-shadow:0 2px 6px #000,0 0 16px rgba(0
 .warp-flash{position:fixed;inset:0;z-index:62;background:radial-gradient(circle at 50% 50%,rgba(255,246,250,.92),rgba(255,236,244,.15) 45%,rgba(255,236,244,0) 72%);opacity:0;pointer-events:none}
 .warp-flash.show{opacity:1;transition:opacity .18s ease}
 #warp-caption{position:fixed;left:50%;top:54%;transform:translate(-50%,-50%);z-index:63;color:rgba(255,224,236,.82);font-style:italic;letter-spacing:.16em;font-size:.82rem;text-transform:uppercase;opacity:0;transition:opacity .6s ease;text-align:center;pointer-events:none}#warp-caption.show{opacity:1}
-/* Act IV audio toggle — only appears once Act IV is showing */
+
 #audio-toggle{position:fixed;left:22px;bottom:24px;z-index:30;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,208,224,.28);background:rgba(4,6,14,.35);color:rgba(255,224,236,.78);font-style:italic;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .6s ease,border-color .3s,color .3s,transform .2s}
 body.act4 #audio-toggle{opacity:1;pointer-events:auto}
 #audio-toggle:hover{transform:scale(1.08);border-color:rgba(255,208,224,.55)}
@@ -51,6 +52,38 @@ body.act4 #audio-toggle{opacity:1;pointer-events:auto}
 <svg id="constellations" viewBox="0 0 100 100" preserveAspectRatio="none">
   <g id="rose-lines" class="group"><path id="rose-outer" d=""></path><path id="rose-inner" class="inner" d=""></path><path d="M50 47 Q47 64 50 76 Q52 84 50 92"></path><path d="M50 63 Q39 60 32 69 Q41 74 50 67 Z"></path><path d="M50 70 Q61 67 68 76 Q59 81 50 74 Z"></path></g>
   <g id="heart-lines" class="group"><path id="heart-outer" d=""></path><path id="heart-inner" class="inner" d=""></path></g>
+  <g id="cat-lines" class="group">
+    <!-- FINAL ACT: a clearly recognizable cat drawn ONLY with straight line segments. -->
+    <path id="cat-outer" class="outer" d="M29,27 L25,10 L38,18 L50,15 L62,18 L75,10 L71,27 L77,34 L73,43 L75,55 L72,67 L78,73 L84,82 L82,88 L75,91 L68,88 L62,82 L57,87 L51,91 L45,88 L39,91 L33,87 L31,80 L33,72 L31,61 L28,52 L23,47 L17,44 L12,38 L16,31 L23,28 L29,27 Z"></path>
+
+    <!-- Angular face -->
+    <path id="cat-inner" class="inner" d="M29,27 L38,21 L50,19 L62,21 L71,27 L68,38 L61,45 L50,48 L39,45 L32,38 L29,27 Z"></path>
+    <path class="accent" d="M36,31 L43,28 L48,33 L42,36 L36,31 Z M52,33 L57,28 L64,31 L58,36 L52,33 Z"></path>
+    <path class="accent" d="M48,38 L52,38 L50,42 Z M50,42 L45,45 M50,42 L55,45"></path>
+
+    <!-- Chest and four angular legs/paws -->
+    <path class="accent" d="M39,45 L36,57 L38,70 L35,82 L39,88 L45,88 L48,82 L49,70 L50,55"></path>
+    <path class="accent" d="M61,45 L65,57 L64,70 L61,81 L64,87 L70,88 L74,84 L70,74 L72,64"></path>
+    <path class="accent" d="M35,82 L39,84 L43,82 M61,81 L65,84 L70,82"></path>
+
+    <!-- Large curled tail made from straight segments -->
+    <path class="accent tail" d="M72,55 L82,58 L89,64 L91,72 L89,80 L84,86 L77,89 L70,88 L64,84 L62,80"></path>
+    <path class="accent" d="M72,67 L79,69 L84,74 L84,79 L81,83 L76,84"></path>
+
+    <!-- Straight whiskers -->
+    <path class="accent" d="M31,36 L18,33 M31,40 L16,40 M33,44 L19,49 M69,36 L82,33 M69,40 L84,40 M67,44 L81,49"></path>
+
+    <!-- Stars sit on actual vertices of the cat, not outside it. -->
+    <g id="cat-stars">
+      <circle cx="25" cy="10" r="1.15"></circle>
+      <circle cx="75" cy="10" r="1.15"></circle>
+      <circle cx="50" cy="42" r="1.0"></circle>
+      <circle cx="72" cy="55" r="1.0"></circle>
+      <circle cx="89" cy="80" r=".95"></circle>
+      <circle cx="39" cy="88" r="1.0"></circle>
+      <circle cx="64" cy="84" r=".9"></circle>
+    </g>
+  </g>
   <g id="mirror-lines" class="group">
     <path id="mirror-outer" class="outer" d=""></path>
     <circle id="mirror-inner" class="inner" cx="50" cy="52" r="11.5"></circle>
@@ -59,13 +92,13 @@ body.act4 #audio-toggle{opacity:1;pointer-events:auto}
     <g id="mirror-stars"></g>
   </g>
 </svg>
-<div id="rose-caption" class="sky-caption"></div><div id="heart-caption" class="sky-caption"></div><div id="moon-caption" class="sky-caption">✦  ✦</div>
+<div id="rose-caption" class="sky-caption"></div><div id="heart-caption" class="sky-caption"></div><div id="moon-caption" class="sky-caption"> ✦</div><div id="cat-caption" class="sky-caption"></div>
 <div id="stanza-panel"><div id="card" class="card"></div></div><div id="act4-transition" title="continue"></div><div id="counter">touch a star</div><div id="dismiss">click anywhere to continue ·</div>
 <div id="warp-caption">✦ crossing into the last sky ✦</div>
 <audio id="act4-audio" src="cinderella.mp3" preload="none" loop></audio>
 <button id="audio-toggle" class="audio-btn" title="toggle music">♪</button>
 <div id="intro"><div class="intro-inner"><h1>knowing the night</h1><p>a poem in stars</p><button id="begin">enter the sky</button></div></div>
-<div id="nav"><button class="nav on" data-act="1">I</button><button class="nav" data-act="2">II</button><button class="nav" data-act="3">III</button><button class="nav" data-act="4">IV</button></div>
+<div id="nav"><button class="nav on" data-act="1">I</button><button class="nav" data-act="2">II</button><button class="nav" data-act="3">III</button><button class="nav" data-act="4">IV</button><button class="nav" data-act="5">V</button></div>
 <script>
 const ACT1=[
 {lines:`You speak and even time leans in;\nthe world forgets its pace.\nIn this quiet stillness\neverything within me finally finds its place.`,size:5},
@@ -101,17 +134,27 @@ const ACT4=[
 {lines:`And if loving your existence\nmeans protecting what you hide,\nthen I'll happily know the surface,\nwith your happiness beside.`,size:5.1},
 {lines:`Maybe someday you'll tell me.\nMaybe someday you won't.\n\nBut if the price of keeping peace\nis leaving certain stories through,\n\nI'd still choose you.`,size:6.0,final:true}
 ];
+const ACT5=[
+{lines:`Some feelings arrive without asking their way in,\nhalf-formed, half-frightened, and difficult to name,\nlike a thought caught somewhere between the door and the hinge,\na match that burns without much of a flame.`,size:4.8},
+{lines:`there are things that don't surface when spoken,\nlittle fractures kept carefully out of the light\nand chances say I might be wrong,\nbut I notice some weight`,size:5.0},
+{lines:`There are days when concern becomes clumsy with care,\nwhen wanting to help only makes things feel strange;\nwhen the heart gets ahead of whatever makes sense,\nand means something gentle, but says it all wrong anyway.`,size:4.6},
+{lines:`Still\nthere are certain things that remain hard to miss:\nthe kind of beauty that doesn't require a mirror,\nthe kind that exists in the curve of a smile\nand somehow becomes even clearer,\nthe kind that lives underneath skin and expression,\nin the way you make softness look almost effortless.`,size:4.3},
+{lines:`Apeksha,\na name that sounds like a question left open,\na breath held somewhere between hop ;\nand if there is something you're carrying quietly,\nI hope it gets lighter before you  break.`,size:4.9},
+{lines:`No fixing, no answers, no reason to explain,\nno expectation disguised as concern;\njust a quiet hope that when things become heavy,\nyou'll give yourself the same grace you give others in return.`,size:4.7},
+{lines:`And if this came out crooked,\nif the words caught somewhere between intention and impact,\nlet them be what they were meant to be\nnot a hand pulling,\njust one left there,\nin case you need something`,size:5.6,final:true}
+];
 const POS1=[{x:.18,y:.22},{x:.72,y:.16},{x:.44,y:.38},{x:.82,y:.52},{x:.25,y:.62},{x:.60,y:.72}];
 const POS2=[{x:.72,y:.30},{x:.568,y:.122},{x:.322,y:.19},{x:.322,y:.41},{x:.50,y:.82}];
 const POS3=[{x:.363,y:.20},{x:.637,y:.20},{x:.22,y:.337},{x:.78,y:.337},{x:.50,y:.70}];
+const POS4=[{x:.25,y:.10},{x:.75,y:.10},{x:.50,y:.42},{x:.72,y:.55},{x:.89,y:.80},{x:.39,y:.88},{x:.64,y:.84}];
 let act=1,started=false,stanzas=ACT1.slice(),stars=[],revealed=0,animating=false,finished=false,dismissTimer=null;
 const act4Audio=document.getElementById('act4-audio'),audioToggle=document.getElementById('audio-toggle');
 const ACT4_VOL=0.55;
 function fadeAudio(el,to,dur=800,onDone){
   const from=el.volume,t0=performance.now();
   function step(now){
-    const t=Math.min(1,(now-t0)/dur);
-    el.volume=from+(to-from)*t;
+    const t=Math.max(0,Math.min(1,(now-t0)/dur));
+    el.volume=Math.max(0,Math.min(1,from+(to-from)*t));
     if(t<1)requestAnimationFrame(step);else if(onDone)onDone();
   }
   requestAnimationFrame(step);
@@ -187,10 +230,10 @@ function showStanza(i){
           finished=true;
           counter.style.opacity=0;
           dismiss.classList.remove('show');
-          /* The completed act gets a clear continuation star. */
+
           setTimeout(()=>{
             const transition=document.getElementById('act4-transition');
-            if(act<4){
+            if(act<5){
               transition.classList.add('show');
             }
           },700);
@@ -229,7 +272,7 @@ function mirrorPoints(){
       y:cy+Math.sin(v)*valleyRy
     });
   }
-  /* inner now matches the drawn inner circle (cx 50, cy 52, r 11.5) exactly, so every spoke touches its rim. */
+
   return {peaks,vals,inner:11.5,cx,cy};
 }
 function buildMirror(){
@@ -324,6 +367,7 @@ function beginAct4(){
 function beginAct1(){act=1;stanzas=ACT1.slice();finished=false;revealed=0;stopAct4Audio();document.body.classList.remove('act4');document.getElementById('act4-transition').classList.remove('show');document.getElementById('moon-scene').classList.remove('show');document.getElementById('reading-veil').classList.remove('show');document.getElementById('final-glow').classList.remove('show');buildMirror();setActGroup(null);makeStars(POS1,ACT1);counter.style.opacity=1;counter.textContent='touch a star  ✦'}
 function beginAct2(){act=2;stanzas=ACT2.slice();finished=false;revealed=0;stopAct4Audio();document.body.classList.remove('act4');document.getElementById('act4-transition').classList.remove('show');document.getElementById('moon-scene').classList.remove('show');document.getElementById('reading-veil').classList.remove('show');setActGroup('rose-lines');let o=rosePts(),inn=rosePts(true);document.getElementById('rose-outer').setAttribute('d',pointsPath(o)+' Z');document.getElementById('rose-inner').setAttribute('d',pointsPath(inn));makeStars(POS2,ACT2,'rose-star');counter.style.opacity=1;counter.textContent='touch a star  ✦';showCaption('rose-caption')}
 function beginAct3(){act=3;stanzas=ACT3.slice();finished=false;revealed=0;stopAct4Audio();document.body.classList.remove('act4');document.getElementById('act4-transition').classList.remove('show');document.getElementById('moon-scene').classList.remove('show');document.getElementById('reading-veil').classList.remove('show');setActGroup('heart-lines');let o=heartPts(1),inn=heartPts(.58);document.getElementById('heart-outer').setAttribute('d',pointsPath(o)+' Z');document.getElementById('heart-inner').setAttribute('d',pointsPath(inn));makeStars(POS3,ACT3,'heart-star');counter.style.opacity=1;counter.textContent='touch a star  ✦';showCaption('heart-caption')}
+function beginAct5(){act=5;stanzas=ACT5.slice();finished=false;revealed=0;stopAct4Audio();document.body.classList.remove('act4');document.getElementById('act4-transition').classList.remove('show');document.getElementById('moon-scene').classList.remove('show');document.getElementById('reading-veil').classList.remove('show');document.getElementById('final-glow').classList.remove('show');setActGroup('cat-lines');makeStars(POS4,ACT5,'cat-star');counter.style.opacity=1;counter.textContent='touch a star  ✦';showCaption('cat-caption')}
 function pointsPath(p){return p.map((x,i)=>(i?'L':'M')+(x.x*100).toFixed(2)+','+(x.y*100).toFixed(2)).join(' ')}
 function showCaption(id){document.querySelectorAll('.sky-caption').forEach(e=>e.classList.remove('show'));let e=document.getElementById(id);if(e){e.classList.add('show');setTimeout(()=>e.classList.remove('show'),3200)}}
 function finale(){document.getElementById('final-glow').classList.add('show');let n=55;for(let i=0;i<n;i++){let p=document.createElement('div');p.className='burst';p.style.setProperty('--a',Math.random()*360+'deg');p.style.setProperty('--d',90+Math.random()*Math.min(innerWidth,innerHeight)*.42+'px');p.style.setProperty('--dur',1.2+Math.random()*1.8+'s');document.body.appendChild(p);setTimeout(()=>p.remove(),3600)}}
@@ -375,13 +419,15 @@ function continueToNextAct(){
   }else if(act===3){
     primeAct4Audio();
     playWarpTransition(beginAct4);
+  }else if(act===4){
+    beginAct5();
   }else{
-    /* Act 4 is the end. Let the mirror bloom instead. */
+ 
     finale();
   }
 }
 document.getElementById('act4-transition').onclick=continueToNextAct;
-function jump(n){if(!started){started=true;document.getElementById('intro').style.opacity=0;setTimeout(()=>document.getElementById('intro').remove(),900)}hideCard();if(n===4)primeAct4Audio();if(n===1)beginAct1();if(n===2)beginAct2();if(n===3)beginAct3();if(n===4)beginAct4();document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('on',+b.dataset.act===n))}
+function jump(n){if(!started){started=true;document.getElementById('intro').style.opacity=0;setTimeout(()=>document.getElementById('intro').remove(),900)}hideCard();if(n===4)primeAct4Audio();if(n===1)beginAct1();if(n===2)beginAct2();if(n===3)beginAct3();if(n===4)beginAct4();if(n===5)beginAct5();document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('on',+b.dataset.act===n))}
 document.getElementById('begin').onclick=()=>jump(1);document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>jump(+b.dataset.act));document.addEventListener('click',e=>{if(e.target.closest('.star-point,.mirror-dot,#nav,#intro,#audio-toggle'))return;if(card.classList.contains('show'))hideCard()});window.addEventListener('resize',()=>{resize();seed();if(act===4){buildMirror();addMirrorDots()}});resize();seed();buildMirror();requestAnimationFrame(raf);
 </script>
 </body>
